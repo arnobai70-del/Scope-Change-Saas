@@ -16,6 +16,7 @@ use App\Models\WebhookEvent;
 use App\Models\Workspace;
 use App\Services\AuditTrailService;
 use App\Services\PlanService;
+use App\Services\SeoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -328,5 +329,84 @@ class AdminController extends Controller
                     'at' => $e->occurred_at->toDayDateTimeString(),
                 ]),
         ]);
+    }
+
+    public function seo(SeoService $seo): Response
+    {
+        return Inertia::render('admin/Seo', [
+            'settings' => $seo->all(),
+            'pages' => $seo->pagePaths(),
+            'defaultRobots' => $seo->defaultRobots(),
+            'robotsPreview' => $seo->robots(),
+            'sitemapCount' => $seo->sitemapUrls()->count(),
+            'robotsUrl' => url('/robots.txt'),
+            'sitemapUrl' => url('/sitemap.xml'),
+        ]);
+    }
+
+    public function updateSeo(Request $request, SeoService $seo, string $section): RedirectResponse
+    {
+        $paths = $seo->pagePaths();
+
+        $value = match ($section) {
+            'meta' => $request->validate([
+                'default_description' => ['nullable', 'string', 'max:300'],
+                'og_image' => ['nullable', 'url:http,https', 'max:500'],
+                'google_verification' => ['nullable', 'string', 'max:120', 'regex:/^[A-Za-z0-9_-]+$/'],
+                'discourage_indexing' => ['required', 'boolean'],
+                'pages' => ['array'],
+                'pages.*.title' => ['nullable', 'string', 'max:120'],
+                'pages.*.description' => ['nullable', 'string', 'max:300'],
+            ]),
+            'analytics' => $request->validate([
+                'ga_id' => ['nullable', 'string', 'regex:/^G-[A-Z0-9]{4,20}$/'],
+            ], ['ga_id.regex' => 'Use a GA4 measurement ID such as G-AB12CD34EF.']),
+            'robots' => $request->validate(['custom' => ['nullable', 'string', 'max:5000']]),
+            'sitemap' => $request->validate([
+                'include_segments' => ['required', 'boolean'],
+                'include_posts' => ['required', 'boolean'],
+                'extra_urls' => ['array', 'max:200'],
+                'extra_urls.*' => ['string', 'max:500', 'regex:#^(/|https?://)#'],
+                'exclude' => ['array', 'max:200'],
+                'exclude.*' => ['string', Rule::in($paths)],
+            ]),
+            default => abort(404),
+        };
+
+        if ($section === 'meta') {
+            // Keep only overrides for known pages that actually say something.
+            /** @var array<string, array{title?: string|null, description?: string|null}> $pages */
+            $pages = $value['pages'] ?? [];
+            $value['pages'] = collect($pages)
+                ->only($paths)
+                ->map(fn ($p) => ['title' => trim((string) ($p['title'] ?? '')), 'description' => trim((string) ($p['description'] ?? ''))])
+                ->filter(fn ($p) => $p['title'] !== '' || $p['description'] !== '')
+                ->all();
+            $value['discourage_indexing'] = (bool) $value['discourage_indexing'];
+            foreach (['default_description', 'og_image', 'google_verification'] as $key) {
+                $value[$key] = trim((string) ($value[$key] ?? ''));
+            }
+        }
+
+        if ($section === 'analytics') {
+            $value['ga_id'] = (string) ($value['ga_id'] ?? '');
+        }
+
+        if ($section === 'robots') {
+            $value['custom'] = filled($value['custom'] ?? null) ? str_replace("\r\n", "\n", (string) $value['custom']) : null;
+        }
+
+        if ($section === 'sitemap') {
+            $value['include_segments'] = (bool) $value['include_segments'];
+            $value['include_posts'] = (bool) $value['include_posts'];
+            $value['extra_urls'] = array_values($value['extra_urls'] ?? []);
+            $value['exclude'] = array_values($value['exclude'] ?? []);
+        }
+
+        $row = $seo->save($section, $value);
+        $this->audit->record($row, 'admin.seo_updated', ActorType::Admin, $this->user(), ['section' => $section]);
+        $this->toast('SEO settings saved.');
+
+        return back();
     }
 }

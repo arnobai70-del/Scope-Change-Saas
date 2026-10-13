@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models;
+use App\Services\SeoService;
 use App\Support\TenantContext;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -33,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
         $this->configureModels();
         $this->configureRateLimiting();
         $this->configureRoutes();
+
+        View::composer('layouts.public', fn ($view) => $this->app->make(SeoService::class)->compose($view));
     }
 
     /**
@@ -73,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
             'webhook_event' => Models\WebhookEvent::class,
             'support_ticket' => Models\SupportTicket::class,
             'feature_flag' => Models\FeatureFlag::class,
+            'site_setting' => Models\SiteSetting::class,
         ]);
     }
 

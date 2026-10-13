@@ -6,6 +6,7 @@ import {
     LayoutDashboard,
     LifeBuoy,
     ScrollText,
+    Search,
     Users,
     Webhook,
 } from '@lucide/vue';
@@ -19,6 +20,7 @@ const items = [
     { title: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
     { title: 'Support', href: '/admin/tickets', icon: LifeBuoy },
     { title: 'Feature flags', href: '/admin/flags', icon: Flag },
+    { title: 'SEO & analytics', href: '/admin/seo', icon: Search },
     { title: 'Admin audit', href: '/admin/audit', icon: ScrollText },
 ];
 </script>

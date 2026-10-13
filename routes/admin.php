@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Middleware\EnsureAdmin;
+use App\Services\SeoService;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', EnsureAdmin::class])->prefix('admin')->name('admin.')->controller(AdminController::class)->group(function () {
@@ -21,4 +22,6 @@ Route::middleware(['auth', 'verified', EnsureAdmin::class])->prefix('admin')->na
     Route::get('/flags', 'flags')->name('flags');
     Route::put('/flags', 'toggleFlag')->name('flags.toggle');
     Route::get('/audit', 'audit')->name('audit');
+    Route::get('/seo', 'seo')->name('seo');
+    Route::put('/seo/{section}', 'updateSeo')->whereIn('section', SeoService::SECTIONS)->name('seo.update');
 });

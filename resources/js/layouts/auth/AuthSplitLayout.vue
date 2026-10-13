@@ -38,7 +38,7 @@ defineProps<{
                 {{ name }}
             </Link>
 
-            <div class="relative z-10 mt-auto max-w-md">
+            <div class="relative z-10 my-auto max-w-md py-12">
                 <div
                     class="relative rotate-[-2deg] rounded-2xl bg-white p-5 text-ink shadow-2xl"
                     aria-hidden="true"
@@ -73,6 +73,23 @@ defineProps<{
                     every change.
                 </p>
             </div>
+
+            <ul
+                class="relative z-10 flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-white/50"
+            >
+                <li class="flex items-center gap-2">
+                    <span class="size-1.5 rounded-full bg-signal" />
+                    No-login client approvals
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="size-1.5 rounded-full bg-signal" />
+                    Timestamped audit trail
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="size-1.5 rounded-full bg-signal" />
+                    PDF Proof Packs
+                </li>
+            </ul>
         </aside>
 
         <main

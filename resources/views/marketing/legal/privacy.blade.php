@@ -21,5 +21,9 @@
 <h2>International transfers</h2>
 <p>Where data leaves your region, we rely on appropriate safeguards such as standard contractual clauses. See our <a href="{{ route('marketing.subprocessors') }}">subprocessors</a>.</p>
 <h2>Cookies</h2>
+@if(filled(app(\App\Services\SeoService::class)->section('analytics')['ga_id']))
+<p>We use essential cookies for sessions, security and remembering your preferences. On our public marketing pages we also use Google Analytics cookies to understand how visitors use the site. Client approval pages and the app are never tracked. We do not use advertising cookies.</p>
+@else
 <p>We use only essential cookies for sessions, security and remembering your preferences. We do not use advertising cookies.</p>
+@endif
 @endsection

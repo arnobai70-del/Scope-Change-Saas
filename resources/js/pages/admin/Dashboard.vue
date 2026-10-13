@@ -6,6 +6,7 @@ import {
     Flag,
     LifeBuoy,
     ScrollText,
+    Search,
     Users,
     Webhook,
 } from '@lucide/vue';
@@ -96,6 +97,12 @@ const actions = [
         text: 'Turn features on or off for the whole platform.',
         href: '/admin/flags',
         icon: Flag,
+    },
+    {
+        title: 'SEO & analytics',
+        text: 'Meta tags, Google Analytics, robots.txt and sitemap.xml.',
+        href: '/admin/seo',
+        icon: Search,
     },
     {
         title: 'Admin audit',
@@ -226,7 +233,7 @@ const funnelRows = computed(() => {
             >
                 Manage the platform
             </h2>
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Link
                     v-for="action in actions"
                     :key="action.href"

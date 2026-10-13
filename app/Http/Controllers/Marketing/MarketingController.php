@@ -7,6 +7,7 @@ use App\Models\SupportTicket;
 use App\Models\User;
 use App\Services\AnalyticsService;
 use App\Services\PlanService;
+use App\Services\SeoService;
 use App\Support\Money;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -225,32 +226,14 @@ class MarketingController extends Controller
         return back()->with('status', 'Thanks, we received your message and will reply by email.');
     }
 
-    public function sitemap(): Response
+    public function sitemap(SeoService $seo): Response
     {
-        $urls = collect([
-            '/', '/features', '/how-it-works', '/pricing', '/templates/change-request',
-            '/tools/change-request-generator', '/tools/scope-creep-calculator', '/examples/client-approval',
-            '/blog', '/docs', '/security', '/contact', '/legal/terms', '/legal/privacy', '/legal/dpa', '/legal/refund', '/subprocessors',
-        ])
-            ->merge(collect(array_keys(self::SEGMENTS))->map(fn ($s) => "/for/{$s}"))
-            ->merge(collect(array_keys(self::POSTS))->map(fn ($s) => "/blog/{$s}"))
-            ->map(fn ($path) => url($path));
-
-        return response()->view('marketing.sitemap', ['urls' => $urls])->header('Content-Type', 'application/xml');
+        return response()->view('marketing.sitemap', ['urls' => $seo->sitemapUrls()])->header('Content-Type', 'application/xml');
     }
 
-    public function robots(): Response
+    public function robots(SeoService $seo): Response
     {
-        $body = implode("\n", [
-            'User-agent: *',
-            'Disallow: /app/',
-            'Disallow: /c/',
-            'Disallow: /admin/',
-            'Disallow: /settings/',
-            'Sitemap: '.url('/sitemap.xml'),
-        ])."\n";
-
-        return response($body, 200, ['Content-Type' => 'text/plain']);
+        return response($seo->robots(), 200, ['Content-Type' => 'text/plain']);
     }
 
     /**

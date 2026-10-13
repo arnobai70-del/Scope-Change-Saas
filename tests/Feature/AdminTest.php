@@ -35,7 +35,7 @@ class AdminTest extends TestCase
     {
         $this->actingAs($this->admin());
 
-        foreach (['/admin' => 'admin/Dashboard', '/admin/users' => 'admin/Users', '/admin/workspaces' => 'admin/Workspaces', '/admin/webhooks' => 'admin/Webhooks', '/admin/tickets' => 'admin/Tickets', '/admin/flags' => 'admin/Flags', '/admin/audit' => 'admin/Audit'] as $url => $component) {
+        foreach (['/admin' => 'admin/Dashboard', '/admin/users' => 'admin/Users', '/admin/workspaces' => 'admin/Workspaces', '/admin/webhooks' => 'admin/Webhooks', '/admin/tickets' => 'admin/Tickets', '/admin/flags' => 'admin/Flags', '/admin/seo' => 'admin/Seo', '/admin/audit' => 'admin/Audit'] as $url => $component) {
             $this->get($url)->assertOk()->assertInertia(fn ($page) => $page->component($component));
         }
     }
