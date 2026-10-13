@@ -31,6 +31,7 @@ const { isCurrentUrl } = useCurrentUrl();
                     as-child
                     :is-active="isCurrentUrl(item.href, undefined, true)"
                     :tooltip="item.title"
+                    class="relative before:absolute before:inset-y-1.5 before:left-0 before:w-[3px] before:rounded-full before:bg-transparent data-[active=true]:font-semibold data-[active=true]:before:bg-sidebar-primary data-[active=true]:[&>svg]:text-sidebar-primary"
                 >
                     <Link :href="item.href">
                         <component :is="item.icon" />

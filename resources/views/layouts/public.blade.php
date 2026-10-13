@@ -15,10 +15,12 @@
     @endif
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#14112b">
     @vite(['resources/css/app.css'])
     @stack('head')
 </head>
-<body class="min-h-screen bg-white font-sans text-neutral-900 antialiased">
+<body class="min-h-screen bg-paper font-sans text-ink antialiased">
     @yield('body')
 </body>
 </html>

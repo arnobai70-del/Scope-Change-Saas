@@ -11,7 +11,7 @@ const tone = computed(() => {
         case 'proof_packed':
         case 'confirmed':
         case 'active':
-            return 'bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:ring-emerald-900';
+            return 'bg-signal-soft text-lime-800 ring-lime-300 dark:bg-lime-950 dark:text-lime-200 dark:ring-lime-900';
         case 'declined':
         case 'expired':
         case 'revoked':
@@ -27,9 +27,9 @@ const tone = computed(() => {
         case 'sent':
         case 'viewed':
         case 'in_progress':
-            return 'bg-indigo-50 text-indigo-800 ring-indigo-200 dark:bg-indigo-950 dark:text-indigo-200 dark:ring-indigo-900';
+            return 'bg-brand-50 text-brand-800 ring-brand-200 dark:bg-brand-950 dark:text-brand-200 dark:ring-brand-900';
         default:
-            return 'bg-neutral-100 text-neutral-700 ring-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:ring-neutral-700';
+            return 'bg-muted text-muted-foreground ring-border';
     }
 });
 </script>
@@ -37,9 +37,12 @@ const tone = computed(() => {
 <template>
     <span
         :class="[
-            'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset',
+            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ring-1 ring-inset',
             tone,
         ]"
-        >{{ label }}</span
+        ><span
+            class="size-1.5 shrink-0 rounded-full bg-current opacity-70"
+            aria-hidden="true"
+        />{{ label }}</span
     >
 </template>

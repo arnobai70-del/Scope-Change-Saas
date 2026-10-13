@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import {
     Bell,
     BarChart3,
@@ -15,6 +15,7 @@ import {
     UsersRound,
 } from '@lucide/vue';
 import { computed } from 'vue';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
@@ -66,6 +67,15 @@ const workspaceNavItems = computed(() => {
 <template>
     <Sidebar collapsible="icon" variant="inset">
         <SidebarHeader>
+            <Link
+                href="/app/dashboard"
+                class="flex items-center gap-2 px-2 pt-1 pb-2 font-display text-base font-semibold text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+            >
+                <AppLogoIcon class="size-7 shrink-0" />
+                <span class="truncate group-data-[collapsible=icon]:hidden">{{
+                    page.props.name
+                }}</span>
+            </Link>
             <WorkspaceSwitcher />
         </SidebarHeader>
 

@@ -98,7 +98,7 @@ function remove(template: Template): void {
             <div
                 v-for="template in templates"
                 :key="template.id"
-                class="flex flex-col rounded-xl border p-4"
+                class="card-lift flex flex-col rounded-2xl border bg-card p-5"
             >
                 <div class="flex items-start justify-between gap-2">
                     <p class="font-medium">{{ template.name }}</p>
@@ -146,7 +146,7 @@ function remove(template: Template): void {
             <form class="grid gap-4" @submit.prevent="save">
                 <p
                     v-if="planError"
-                    class="rounded-md bg-indigo-50 p-3 text-sm text-indigo-900"
+                    class="rounded-md bg-brand-50 p-3 text-sm text-brand-900"
                 >
                     {{ planError }}
                 </p>

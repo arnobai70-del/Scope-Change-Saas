@@ -66,7 +66,7 @@ function cancel(id: number): void {
 
         <div
             v-if="!teamEnabled"
-            class="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-100"
+            class="rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900 dark:border-brand-900 dark:bg-brand-950 dark:text-brand-100"
         >
             Team seats are available on the Agency plan.
             <Link href="/app/billing" class="font-medium underline"

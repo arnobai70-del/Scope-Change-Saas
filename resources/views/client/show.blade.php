@@ -3,23 +3,24 @@
 @php
     /** @var \App\Models\ChangeRequest $changeRequest */
     /** @var \App\Models\ChangeRequestRevision $revision */
-    $brand = $workspace->brand_color ?: '#4f46e5';
+    $brand = $workspace->brand_color ?: '#5b3df5';
     $tz = $workspace->timezone;
     $route = fn (string $name) => $token ? route($name, [$changeRequest->public_id, $token]) : '#';
 @endphp
 
 @section('body')
-<div class="min-h-screen bg-neutral-50">
-    <header class="border-b bg-white">
+<div class="min-h-screen bg-paper">
+    <header class="border-b border-ink/10 bg-white">
+        <div class="h-1.5" style="background: {{ $brand }}"></div>
         <div class="mx-auto flex max-w-2xl items-center gap-3 px-4 py-4">
             @if($workspace->logoUrl())
-                <img src="{{ $workspace->logoUrl() }}" alt="{{ $workspace->name }} logo" class="h-9 w-9 rounded object-contain">
+                <img src="{{ $workspace->logoUrl() }}" alt="{{ $workspace->name }} logo" class="h-10 w-10 rounded-xl object-contain">
             @else
-                <div class="flex h-9 w-9 items-center justify-center rounded text-sm font-semibold text-white" style="background: {{ $brand }}">{{ mb_substr($workspace->name, 0, 1) }}</div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl font-display text-base font-semibold text-white" style="background: {{ $brand }}">{{ mb_substr($workspace->name, 0, 1) }}</div>
             @endif
             <div class="min-w-0">
-                <p class="truncate font-semibold">{{ $workspace->name }}</p>
-                <p class="text-xs text-neutral-500">Change request {{ $changeRequest->reference }} · Revision {{ $revision->revision_no }}</p>
+                <p class="truncate font-display text-lg font-semibold leading-tight">{{ $workspace->name }}</p>
+                <p class="text-xs text-ink/55">Change request {{ $changeRequest->reference }} · Revision {{ $revision->revision_no }}</p>
             </div>
         </div>
     </header>
@@ -40,81 +41,82 @@
         @endif
 
         @if($decision)
-            <section class="rounded-xl border bg-white p-5" aria-labelledby="decision-heading">
-                <h1 id="decision-heading" class="text-xl font-semibold">
+            <section class="relative overflow-hidden rounded-2xl border border-ink/10 bg-white p-6 card-lift" aria-labelledby="decision-heading">
+                <span class="stamp absolute right-5 top-5 {{ $decision->decision->value === 'approved' ? 'border-lime-600 bg-signal-soft text-lime-800' : 'border-red-500 bg-red-50 text-red-700' }}" aria-hidden="true">{{ $decision->decision->value === 'approved' ? 'Approved' : 'Declined' }}</span>
+                <h1 id="decision-heading" class="pr-28 text-2xl font-semibold">
                     {{ $decision->decision->value === 'approved' ? 'Change approved' : 'Change declined' }}
                 </h1>
-                <p class="mt-1 text-sm text-neutral-600">
+                <p class="mt-1 text-sm text-ink/65">
                     {{ ucfirst($decision->decision->value) }} by {{ $decision->client_name }} ({{ $decision->client_email }})
                     on {{ $decision->decided_at->copy()->setTimezone($tz)->format('j M Y, H:i T') }}
-                    <span class="text-neutral-400">({{ $decision->decided_at->copy()->utc()->format('Y-m-d H:i:s') }} UTC)</span>.
+                    <span class="text-ink/40">({{ $decision->decided_at->copy()->utc()->format('Y-m-d H:i:s') }} UTC)</span>.
                 </p>
-                <p class="mt-1 text-sm text-neutral-600">Reference {{ $changeRequest->reference }} · Revision {{ $revision->revision_no }}</p>
+                <p class="mt-1 text-sm text-ink/65">Reference {{ $changeRequest->reference }} · Revision {{ $revision->revision_no }}</p>
                 <button type="button" onclick="window.print()" class="mt-3 text-sm font-medium underline print:hidden">Print or save a copy</button>
             </section>
         @endif
 
-        <section class="rounded-xl border bg-white p-5">
-            <p class="text-sm text-neutral-600">{{ $workspace->name }} is asking for your approval on a change to <strong>{{ $project->title }}</strong>.</p>
+        <section class="rounded-2xl border border-ink/10 bg-white p-6 card-lift">
+            <p class="text-sm text-ink/65">{{ $workspace->name }} is asking for your approval on a change to <strong>{{ $project->title }}</strong>.</p>
             @unless($decision)
-                <h1 class="mt-3 text-2xl font-semibold leading-tight">{{ $revision->title }}</h1>
+                <h1 class="mt-3 text-3xl font-semibold leading-tight tracking-tight">{{ $revision->title }}</h1>
             @else
                 <h2 class="mt-3 text-xl font-semibold leading-tight">{{ $revision->title }}</h2>
             @endunless
-            <div class="mt-3 whitespace-pre-line text-neutral-800">{{ $revision->description }}</div>
+            <div class="mt-3 whitespace-pre-line text-ink/85">{{ $revision->description }}</div>
         </section>
 
         @if($revision->scope_reason || $revision->scope_excerpt || $revision->scopeItems->isNotEmpty())
-            <section class="rounded-xl border bg-white p-5">
+            <section class="rounded-2xl border border-ink/10 bg-white p-6 card-lift">
                 <h2 class="font-semibold">Why this is outside the agreed scope</h2>
                 @if($revision->scope_reason)
-                    <p class="mt-2 whitespace-pre-line text-neutral-800">{{ $revision->scope_reason }}</p>
+                    <p class="mt-2 whitespace-pre-line text-ink/85">{{ $revision->scope_reason }}</p>
                 @endif
                 @if($revision->scopeItems->isNotEmpty() || $revision->scope_excerpt)
-                    <div class="mt-3 rounded-lg bg-neutral-50 p-3 text-sm">
-                        <p class="font-medium text-neutral-700">Original agreed scope</p>
-                        <ul class="mt-1 list-disc space-y-1 pl-5 text-neutral-700">
+                    <div class="mt-4 rounded-xl border border-dashed border-ink/15 bg-paper p-4 text-sm">
+                        <p class="font-medium text-ink/75">Original agreed scope</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-ink/75">
                             @foreach($revision->scopeItems as $item)
-                                <li><span class="text-neutral-500">{{ $item->type->label() }}:</span> {{ $item->title }}</li>
+                                <li><span class="text-ink/55">{{ $item->type->label() }}:</span> {{ $item->title }}</li>
                             @endforeach
                         </ul>
                         @if($revision->scope_excerpt)
-                            <p class="mt-2 whitespace-pre-line text-neutral-700">{{ $revision->scope_excerpt }}</p>
+                            <p class="mt-2 whitespace-pre-line text-ink/75">{{ $revision->scope_excerpt }}</p>
                         @endif
                     </div>
                 @endif
             </section>
         @endif
 
-        <section class="rounded-xl border bg-white p-5" aria-label="Impact">
+        <section class="rounded-2xl border border-ink/10 bg-white p-6 card-lift" aria-label="Impact">
             <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
-                    <dt class="text-xs uppercase tracking-wide text-neutral-500">Price</dt>
-                    <dd class="mt-1 text-xl font-semibold">{{ $revision->price()->format() }}</dd>
-                    <dd class="text-xs text-neutral-500">{{ $revision->currency }}{{ $revision->price_minor === 0 ? ' · no charge' : '' }}</dd>
+                    <dt class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">Price</dt>
+                    <dd class="mt-1 font-display text-3xl font-semibold tracking-tight">{{ $revision->price()->format() }}</dd>
+                    <dd class="text-xs text-ink/55">{{ $revision->currency }}{{ $revision->price_minor === 0 ? ' · no charge' : '' }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs uppercase tracking-wide text-neutral-500">Timeline</dt>
+                    <dt class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">Timeline</dt>
                     <dd class="mt-1 font-medium">{{ $revision->timelineLabel() }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs uppercase tracking-wide text-neutral-500">Payment</dt>
+                    <dt class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">Payment</dt>
                     <dd class="mt-1 font-medium">{{ $revision->payment_rule->label() }}</dd>
                 </div>
             </dl>
             @if($revision->terms_note)
-                <p class="mt-4 whitespace-pre-line border-t pt-3 text-sm text-neutral-700">{{ $revision->terms_note }}</p>
+                <p class="mt-4 whitespace-pre-line border-t pt-3 text-sm text-ink/75">{{ $revision->terms_note }}</p>
             @endif
         </section>
 
         @if($payment && $payment->status->value !== 'not_required' && $decision && $decision->decision->value === 'approved')
-            <section class="rounded-xl border bg-white p-5" aria-labelledby="payment-heading">
+            <section class="rounded-2xl border border-ink/10 bg-white p-6 card-lift" aria-labelledby="payment-heading">
                 <h2 id="payment-heading" class="font-semibold">Payment</h2>
-                <p class="mt-1 text-sm text-neutral-600">Status: {{ $payment->status->label() }} · {{ $payment->amount()->format() }}</p>
+                <p class="mt-1 text-sm text-ink/65">Status: {{ $payment->status->label() }} · {{ $payment->amount()->format() }}</p>
                 @if($revision->payment_instructions)
-                    <p class="mt-2 whitespace-pre-line text-sm text-neutral-800">{{ $revision->payment_instructions }}</p>
+                    <p class="mt-2 whitespace-pre-line text-sm text-ink/85">{{ $revision->payment_instructions }}</p>
                 @endif
-                <p class="mt-2 text-xs text-neutral-500">Payment goes directly to {{ $workspace->name }}. This page never handles your money.</p>
+                <p class="mt-2 text-xs text-ink/55">Payment goes directly to {{ $workspace->name }}. This page never handles your money.</p>
                 @if($token && $payment->status->value === 'pending')
                     <div class="mt-3 flex flex-col gap-2 sm:flex-row">
                         @if($payment->external_url)
@@ -123,8 +125,8 @@
                         <form method="POST" action="{{ $route('client.payment-sent') }}" class="flex flex-1 flex-col gap-2 sm:flex-row">
                             @csrf
                             <label for="reference" class="sr-only">Payment reference (optional)</label>
-                            <input id="reference" name="reference" maxlength="120" placeholder="Payment reference (optional)" class="flex-1 rounded-lg border px-3 py-2 text-sm">
-                            <button class="rounded-lg border px-4 py-2 text-sm font-medium">I've sent the payment</button>
+                            <input id="reference" name="reference" maxlength="120" placeholder="Payment reference (optional)" class="flex-1 rounded-lg border border-ink/15 bg-white px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 text-sm">
+                            <button class="rounded-lg border border-ink/15 bg-white px-4 py-2 hover:bg-paper text-sm font-medium">I've sent the payment</button>
                         </form>
                     </div>
                 @endif
@@ -132,8 +134,9 @@
         @endif
 
         @if($canDecide)
-            <section class="rounded-xl border-2 bg-white p-5" style="border-color: {{ $brand }}" aria-labelledby="approve-heading">
-                <h2 id="approve-heading" class="font-semibold">Your decision</h2>
+            <section class="relative rounded-2xl border-2 bg-white p-6 card-lift" style="border-color: {{ $brand }}" aria-labelledby="approve-heading">
+                <h2 id="approve-heading" class="text-xl font-semibold">Your decision</h2>
+                <p class="mt-1 text-sm text-ink/60">Approving tells {{ $workspace->name }} they can start. You will get a copy for your records.</p>
                 <form method="POST" action="{{ $route('client.approve') }}" class="mt-3 space-y-3" id="decision-form">
                     @csrf
                     <input type="hidden" name="revision_id" value="{{ $revision->id }}">
@@ -141,35 +144,35 @@
                     <div class="grid gap-3 sm:grid-cols-2">
                         <div>
                             <label for="client_name" class="text-sm font-medium">Your name</label>
-                            <input id="client_name" name="client_name" required maxlength="120" value="{{ old('client_name', $changeRequest->recipient_name) }}" autocomplete="name" class="mt-1 w-full rounded-lg border px-3 py-2">
+                            <input id="client_name" name="client_name" required maxlength="120" value="{{ old('client_name', $changeRequest->recipient_name) }}" autocomplete="name" class="mt-1 w-full rounded-lg border border-ink/15 bg-white px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
                         </div>
                         <div>
                             <label for="client_email" class="text-sm font-medium">Your email</label>
-                            <input id="client_email" name="client_email" type="email" required maxlength="255" value="{{ old('client_email', $changeRequest->recipient_email) }}" autocomplete="email" class="mt-1 w-full rounded-lg border px-3 py-2">
+                            <input id="client_email" name="client_email" type="email" required maxlength="255" value="{{ old('client_email', $changeRequest->recipient_email) }}" autocomplete="email" class="mt-1 w-full rounded-lg border border-ink/15 bg-white px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
                         </div>
                     </div>
                     <label class="flex items-start gap-2 text-sm">
                         <input type="checkbox" name="accept_terms" value="1" class="mt-1" required>
                         <span>I approve this change, including the price of {{ $revision->price()->format() }}, the timeline impact and the payment condition above.</span>
                     </label>
-                    <button class="w-full rounded-lg px-4 py-3 text-base font-semibold text-white" style="background: {{ $brand }}">Approve change</button>
+                    <button class="w-full rounded-xl px-4 py-3.5 text-base font-semibold text-white shadow-lg transition hover:brightness-110" style="background: {{ $brand }}">Approve change</button>
                 </form>
 
                 <details class="mt-4">
-                    <summary class="cursor-pointer text-sm font-medium text-neutral-700">Decline this change</summary>
+                    <summary class="cursor-pointer text-sm font-medium text-ink/75">Decline this change</summary>
                     <form method="POST" action="{{ $route('client.decline') }}" class="mt-3 space-y-3">
                         @csrf
                         <input type="hidden" name="revision_id" value="{{ $revision->id }}">
                         <input type="hidden" name="client_name" value="{{ old('client_name', $changeRequest->recipient_name) }}" data-mirror="client_name">
                         <input type="hidden" name="client_email" value="{{ old('client_email', $changeRequest->recipient_email) }}" data-mirror="client_email">
                         <label for="reason" class="text-sm font-medium">Reason (optional)</label>
-                        <textarea id="reason" name="reason" maxlength="2000" rows="3" class="w-full rounded-lg border px-3 py-2"></textarea>
-                        <button class="w-full rounded-lg border px-4 py-2.5 font-medium">Decline change</button>
+                        <textarea id="reason" name="reason" maxlength="2000" rows="3" class="w-full rounded-lg border border-ink/15 bg-white px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"></textarea>
+                        <button class="w-full rounded-lg border border-ink/15 bg-white px-4 py-2.5 font-medium hover:bg-paper">Decline change</button>
                     </form>
                 </details>
             </section>
 
-            <section class="rounded-xl border bg-white p-5" aria-labelledby="question-heading">
+            <section class="rounded-2xl border border-ink/10 bg-white p-6 card-lift" aria-labelledby="question-heading">
                 <h2 id="question-heading" class="font-semibold">Ask a question</h2>
                 <form method="POST" action="{{ $route('client.comment') }}" class="mt-3 space-y-3">
                     @csrf
@@ -177,19 +180,19 @@
                     <input type="hidden" name="client_name" value="{{ old('client_name', $changeRequest->recipient_name) }}" data-mirror="client_name">
                     <input type="hidden" name="client_email" value="{{ old('client_email', $changeRequest->recipient_email) }}" data-mirror="client_email">
                     <label for="body" class="sr-only">Your question</label>
-                    <textarea id="body" name="body" required maxlength="5000" rows="3" placeholder="What would you like to know?" class="w-full rounded-lg border px-3 py-2"></textarea>
-                    <button class="rounded-lg border px-4 py-2 text-sm font-medium">Send question</button>
+                    <textarea id="body" name="body" required maxlength="5000" rows="3" placeholder="What would you like to know?" class="w-full rounded-lg border border-ink/15 bg-white px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"></textarea>
+                    <button class="rounded-lg border border-ink/15 bg-white px-4 py-2 hover:bg-paper text-sm font-medium">Send question</button>
                 </form>
             </section>
         @endif
 
         @if($comments->isNotEmpty())
-            <section class="rounded-xl border bg-white p-5" aria-labelledby="conversation-heading">
+            <section class="rounded-2xl border border-ink/10 bg-white p-6 card-lift" aria-labelledby="conversation-heading">
                 <h2 id="conversation-heading" class="font-semibold">Conversation</h2>
                 <ol class="mt-3 space-y-3">
                     @foreach($comments as $comment)
-                        <li class="rounded-lg {{ $comment->actor_type->value === 'client' ? 'bg-neutral-50' : 'bg-indigo-50' }} p-3 text-sm">
-                            <p class="font-medium">{{ $comment->actor_name ?? ucfirst($comment->actor_type->value) }} <span class="font-normal text-neutral-500">· {{ $comment->created_at?->copy()->setTimezone($tz)->format('j M Y, H:i') }}</span></p>
+                        <li class="rounded-lg {{ $comment->actor_type->value === 'client' ? 'bg-paper' : 'bg-brand-50' }} p-3 text-sm">
+                            <p class="font-medium">{{ $comment->actor_name ?? ucfirst($comment->actor_type->value) }} <span class="font-normal text-ink/55">· {{ $comment->created_at?->copy()->setTimezone($tz)->format('j M Y, H:i') }}</span></p>
                             <p class="mt-1 whitespace-pre-line">{{ $comment->body }}</p>
                         </li>
                     @endforeach
@@ -197,7 +200,7 @@
             </section>
         @endif
 
-        <footer class="space-y-1 pb-8 text-center text-xs text-neutral-500">
+        <footer class="space-y-1 pb-8 text-center text-xs text-ink/55">
             <p>Reference {{ $changeRequest->reference }} · Revision {{ $revision->revision_no }}@if($changeRequest->expires_at && $canDecide) · Link expires {{ $changeRequest->expires_at->copy()->setTimezone($tz)->format('j M Y') }}@endif</p>
             <p>This page records your decision with a timestamp so both sides have the same record. <a class="underline" href="{{ route('legal', 'privacy') }}">Privacy</a> · <a class="underline" href="{{ route('legal', 'terms') }}">Terms</a></p>
             @if($showBranding)

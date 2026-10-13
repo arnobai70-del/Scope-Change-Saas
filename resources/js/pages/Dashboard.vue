@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Plus } from '@lucide/vue';
+import {
+    CircleCheckBig,
+    Hourglass,
+    Plus,
+    ShieldCheck,
+    Wallet,
+} from '@lucide/vue';
+import { computed } from 'vue';
 import EmptyState from '@/components/app/EmptyState.vue';
 import PageHeader from '@/components/app/PageHeader.vue';
 import Panel from '@/components/app/Panel.vue';
@@ -13,7 +20,7 @@ defineOptions({
     layout: { breadcrumbs: [{ title: 'Dashboard', href: '/app/dashboard' }] },
 });
 
-defineProps<{
+const props = defineProps<{
     metrics: {
         pending_value: Money[];
         pending_count: number;
@@ -34,6 +41,33 @@ defineProps<{
     hasProjects: boolean;
     hasClients: boolean;
 }>();
+
+const cards = computed(() => [
+    {
+        label: 'Approved this month',
+        value: String(props.metrics.approved_this_month.count),
+        hint: moneyList(props.metrics.approved_this_month.value, 'None yet'),
+        icon: CircleCheckBig,
+        tone: 'bg-signal-soft text-lime-800 dark:bg-lime-950 dark:text-lime-200',
+    },
+    {
+        label: 'Revenue protected',
+        value: moneyList(props.metrics.revenue_protected),
+        hint: 'All approved changes',
+        icon: ShieldCheck,
+        tone: 'bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-200',
+    },
+    {
+        label: 'Outstanding payments',
+        value: moneyList(props.metrics.outstanding_value),
+        hint:
+            props.metrics.avg_response_hours === null
+                ? 'Avg. response n/a'
+                : `Avg. response ${props.metrics.avg_response_hours} h`,
+        icon: Wallet,
+        tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-200',
+    },
+]);
 </script>
 
 <template>
@@ -41,6 +75,7 @@ defineProps<{
 
     <div class="flex flex-1 flex-col gap-6 p-4">
         <PageHeader
+            :eyebrow="$page.props.workspace?.name"
             title="Dashboard"
             description="What needs your attention and what you have protected."
         >
@@ -67,49 +102,57 @@ defineProps<{
         </EmptyState>
 
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div class="rounded-xl border p-4">
-                <p class="text-sm text-muted-foreground">Awaiting client</p>
-                <p class="mt-1 text-2xl font-semibold">
-                    {{ metrics.pending_count }}
+            <div
+                class="card-lift relative overflow-hidden rounded-2xl bg-ink p-5 text-white dark:bg-brand-950"
+            >
+                <div
+                    class="bg-grid-light pointer-events-none absolute inset-0"
+                    aria-hidden="true"
+                />
+                <div class="relative">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-white/70">Awaiting client</p>
+                        <span
+                            class="flex size-8 items-center justify-center rounded-lg bg-white/10"
+                            ><Hourglass class="size-4 text-signal"
+                        /></span>
+                    </div>
+                    <p
+                        class="mt-3 font-display text-4xl font-semibold text-signal"
+                    >
+                        {{ metrics.pending_count }}
+                    </p>
+                    <p class="mt-1 truncate text-xs text-white/60">
+                        {{
+                            moneyList(metrics.pending_value, 'Nothing pending')
+                        }}
+                    </p>
+                </div>
+            </div>
+            <div
+                v-for="card in cards"
+                :key="card.label"
+                class="card-lift rounded-2xl border bg-card p-5"
+            >
+                <div class="flex items-center justify-between">
+                    <p class="text-sm text-muted-foreground">
+                        {{ card.label }}
+                    </p>
+                    <span
+                        :class="[
+                            'flex size-8 items-center justify-center rounded-lg',
+                            card.tone,
+                        ]"
+                        ><component :is="card.icon" class="size-4"
+                    /></span>
+                </div>
+                <p
+                    class="mt-3 truncate font-display text-3xl font-semibold tracking-tight"
+                >
+                    {{ card.value }}
                 </p>
                 <p class="mt-1 truncate text-xs text-muted-foreground">
-                    {{ moneyList(metrics.pending_value, 'Nothing pending') }}
-                </p>
-            </div>
-            <div class="rounded-xl border p-4">
-                <p class="text-sm text-muted-foreground">Approved this month</p>
-                <p class="mt-1 text-2xl font-semibold">
-                    {{ metrics.approved_this_month.count }}
-                </p>
-                <p class="mt-1 truncate text-xs text-muted-foreground">
-                    {{
-                        moneyList(metrics.approved_this_month.value, 'None yet')
-                    }}
-                </p>
-            </div>
-            <div class="rounded-xl border p-4">
-                <p class="text-sm text-muted-foreground">Revenue protected</p>
-                <p class="mt-1 truncate text-2xl font-semibold">
-                    {{ moneyList(metrics.revenue_protected) }}
-                </p>
-                <p class="mt-1 text-xs text-muted-foreground">
-                    All approved changes
-                </p>
-            </div>
-            <div class="rounded-xl border p-4">
-                <p class="text-sm text-muted-foreground">
-                    Outstanding payments
-                </p>
-                <p class="mt-1 truncate text-2xl font-semibold">
-                    {{ moneyList(metrics.outstanding_value) }}
-                </p>
-                <p class="mt-1 text-xs text-muted-foreground">
-                    Avg. response
-                    {{
-                        metrics.avg_response_hours === null
-                            ? 'n/a'
-                            : `${metrics.avg_response_hours} h`
-                    }}
+                    {{ card.hint }}
                 </p>
             </div>
         </div>
@@ -130,7 +173,7 @@ defineProps<{
                     <li v-for="item in queue" :key="item.id">
                         <Link
                             :href="`/app/change-requests/${item.id}`"
-                            class="flex flex-wrap items-center gap-3 py-3 hover:bg-muted/50"
+                            class="-mx-2 flex flex-wrap items-center gap-3 rounded-xl px-2 py-3 transition hover:bg-muted"
                         >
                             <div class="min-w-0 flex-1">
                                 <p class="truncate font-medium">
@@ -146,7 +189,7 @@ defineProps<{
                                     >
                                 </p>
                             </div>
-                            <span class="text-sm font-medium">{{
+                            <span class="font-display text-sm font-semibold">{{
                                 item.price?.formatted
                             }}</span>
                             <StatusBadge
@@ -165,11 +208,20 @@ defineProps<{
                 >
                     No activity yet.
                 </p>
-                <ol v-else class="space-y-3 text-sm">
-                    <li v-for="event in activity" :key="event.id">
-                        <Link :href="event.url" class="hover:underline">{{
-                            event.event
-                        }}</Link>
+                <ol
+                    v-else
+                    class="relative space-y-4 border-l-2 border-border pl-4 text-sm"
+                >
+                    <li
+                        v-for="event in activity"
+                        :key="event.id"
+                        class="relative before:absolute before:top-1.5 before:-left-[23px] before:size-3 before:rounded-full before:border-2 before:border-card before:bg-primary"
+                    >
+                        <Link
+                            :href="event.url"
+                            class="font-medium hover:underline"
+                            >{{ event.event }}</Link
+                        >
                         <p class="text-xs text-muted-foreground">
                             {{ event.actor }} · {{ event.at }}
                         </p>

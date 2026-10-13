@@ -41,17 +41,19 @@ const mrr = new Intl.NumberFormat('en-US', {
         />
         <AdminNav />
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-xl border p-4">
+            <div class="card-lift rounded-2xl border bg-card p-5">
                 <p class="text-sm text-muted-foreground">MRR (list price)</p>
-                <p class="mt-1 text-2xl font-semibold">{{ mrr }}</p>
+                <p class="mt-1 font-display text-2xl font-semibold">
+                    {{ mrr }}
+                </p>
             </div>
             <div
                 v-for="card in cards"
                 :key="card.key"
-                class="rounded-xl border p-4"
+                class="card-lift rounded-2xl border bg-card p-5"
             >
                 <p class="text-sm text-muted-foreground">{{ card.label }}</p>
-                <p class="mt-1 text-2xl font-semibold">
+                <p class="mt-1 font-display text-2xl font-semibold">
                     {{ stats[card.key] ?? 0 }}
                 </p>
             </div>

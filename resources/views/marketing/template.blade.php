@@ -4,7 +4,7 @@
 
 @section('prose')
 <p>Copy this template into an email or document, or <a href="{{ route('tools.generator') }}">fill it in with the free generator</a>.</p>
-<div class="rounded-lg border border-neutral-200 bg-neutral-50 p-5 font-mono text-sm whitespace-pre-line">Change request: CR-0001
+<div class="rounded-lg border border-ink/10 bg-paper p-5 font-mono text-sm whitespace-pre-line">Change request: CR-0001
 Project: [project name]
 Client: [client name]
 

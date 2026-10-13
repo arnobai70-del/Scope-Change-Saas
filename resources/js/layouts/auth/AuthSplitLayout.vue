@@ -13,35 +13,95 @@ defineProps<{
 </script>
 
 <template>
-    <div
-        class="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0"
-    >
-        <div
-            class="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r"
+    <div class="grid min-h-dvh lg:grid-cols-[1fr_1.05fr]">
+        <aside
+            class="relative hidden overflow-hidden bg-ink p-10 text-white lg:flex lg:flex-col"
         >
-            <div class="absolute inset-0 bg-zinc-900" />
+            <div
+                class="bg-grid-light pointer-events-none absolute inset-0"
+                aria-hidden="true"
+            />
+            <div
+                class="pointer-events-none absolute -top-32 -right-24 size-96 rounded-full bg-brand-600/40 blur-3xl"
+                aria-hidden="true"
+            />
+            <div
+                class="pointer-events-none absolute -bottom-32 -left-24 size-80 rounded-full bg-signal/20 blur-3xl"
+                aria-hidden="true"
+            />
+
             <Link
                 :href="home()"
-                class="relative z-20 flex items-center text-lg font-medium"
+                class="relative z-10 flex items-center gap-2.5 font-display text-lg font-semibold"
             >
-                <AppLogoIcon class="mr-2 size-8 fill-current text-white" />
+                <AppLogoIcon class="size-8" />
                 {{ name }}
             </Link>
-        </div>
-        <div class="lg:p-8">
-            <div
-                class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]"
+
+            <div class="relative z-10 mt-auto max-w-md">
+                <div
+                    class="relative rotate-[-2deg] rounded-2xl bg-white p-5 text-ink shadow-2xl"
+                    aria-hidden="true"
+                >
+                    <p class="text-xs font-semibold text-ink/50">
+                        CR-0042 · Website redesign
+                    </p>
+                    <p class="mt-1 font-display text-lg font-semibold">
+                        Add a blog section
+                    </p>
+                    <div class="mt-3 flex items-center gap-3 text-sm">
+                        <span
+                            class="rounded-lg bg-ink px-2.5 py-1 font-display font-semibold text-white"
+                            >$1,200</span
+                        >
+                        <span class="text-ink/60">+4 days</span>
+                    </div>
+                    <span
+                        class="stamp absolute top-4 -right-3 border-lime-600 bg-signal-soft text-lime-800"
+                        >Approved</span
+                    >
+                </div>
+                <h2
+                    class="mt-10 font-display text-4xl leading-tight font-semibold tracking-tight"
+                >
+                    Every extra request,
+                    <span class="text-signal">priced and approved</span>
+                    before work starts.
+                </h2>
+                <p class="mt-4 text-white/65">
+                    No-login client approvals, reminders and a Proof Pack for
+                    every change.
+                </p>
+            </div>
+        </aside>
+
+        <main
+            class="relative flex flex-col items-center justify-center px-6 py-12 sm:px-10"
+        >
+            <Link
+                :href="home()"
+                class="mb-10 flex items-center gap-2 font-display text-lg font-semibold lg:hidden"
             >
-                <div class="flex flex-col space-y-2 text-center">
-                    <h1 class="text-xl font-medium tracking-tight" v-if="title">
+                <AppLogoIcon class="size-8" />
+                {{ name }}
+            </Link>
+            <div class="w-full max-w-sm">
+                <div class="mb-8">
+                    <h1
+                        v-if="title"
+                        class="font-display text-3xl font-semibold tracking-tight"
+                    >
                         {{ title }}
                     </h1>
-                    <p class="text-sm text-muted-foreground" v-if="description">
+                    <p
+                        v-if="description"
+                        class="mt-2 text-sm text-muted-foreground"
+                    >
                         {{ description }}
                     </p>
                 </div>
                 <slot />
             </div>
-        </div>
+        </main>
     </div>
 </template>

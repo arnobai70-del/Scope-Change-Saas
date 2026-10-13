@@ -186,7 +186,7 @@ if (props.checkoutStatus === 'success') {
             <div
                 v-for="row in usageRows"
                 :key="row.key"
-                class="rounded-xl border p-4"
+                class="card-lift rounded-2xl border bg-card p-5"
             >
                 <p class="text-sm text-muted-foreground">{{ row.label }}</p>
                 <p class="mt-1 text-xl font-semibold">
@@ -240,7 +240,7 @@ if (props.checkoutStatus === 'success') {
                     v-for="p in plans"
                     :key="p.key"
                     :class="[
-                        'flex flex-col rounded-xl border p-5',
+                        'card-lift flex flex-col rounded-2xl border bg-card p-5',
                         p.key === plan ? 'ring-2 ring-primary' : '',
                     ]"
                 >
@@ -248,7 +248,7 @@ if (props.checkoutStatus === 'success') {
                     <p class="mt-1 text-sm text-muted-foreground">
                         {{ p.description }}
                     </p>
-                    <p class="mt-3 text-2xl font-semibold">
+                    <p class="mt-3 font-display text-2xl font-semibold">
                         {{
                             interval === 'year'
                                 ? p.yearly.formatted

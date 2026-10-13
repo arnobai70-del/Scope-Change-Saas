@@ -51,7 +51,7 @@ class Workspace extends Model
     protected $attributes = [
         'currency' => 'USD',
         'timezone' => 'UTC',
-        'brand_color' => '#4f46e5',
+        'brand_color' => '#5b3df5',
         'plan' => 'free',
         'default_expiry_days' => 7,
         'reminders_enabled' => true,

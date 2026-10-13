@@ -9,7 +9,9 @@ defineProps<{ reason: string | null }>();
     <main
         class="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 text-center"
     >
-        <h1 class="text-2xl font-semibold">This workspace is suspended</h1>
+        <h1 class="font-display text-2xl font-semibold">
+            This workspace is suspended
+        </h1>
         <p class="mt-3 text-muted-foreground">
             {{ reason || 'Access to this workspace has been paused.' }} Client
             approval links keep showing past decisions.

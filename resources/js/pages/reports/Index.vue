@@ -59,7 +59,7 @@ function format(minor: number): string {
 
         <div
             v-if="!fullAnalytics"
-            class="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-100"
+            class="rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900 dark:border-brand-900 dark:bg-brand-950 dark:text-brand-100"
         >
             Showing the last 3 months.
             <Link href="/app/billing" class="font-medium underline"
@@ -69,13 +69,13 @@ function format(minor: number): string {
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
-            <div class="rounded-xl border p-4">
+            <div class="card-lift rounded-2xl border bg-card p-5">
                 <p class="text-sm text-muted-foreground">Revenue protected</p>
                 <p class="mt-1 text-xl font-semibold">
                     {{ moneyList(report.revenue_protected) }}
                 </p>
             </div>
-            <div class="rounded-xl border p-4">
+            <div class="card-lift rounded-2xl border bg-card p-5">
                 <p class="text-sm text-muted-foreground">
                     Approval rate (12 months)
                 </p>
@@ -87,7 +87,7 @@ function format(minor: number): string {
                     }}
                 </p>
             </div>
-            <div class="rounded-xl border p-4">
+            <div class="card-lift rounded-2xl border bg-card p-5">
                 <p class="text-sm text-muted-foreground">
                     Median time to decision
                 </p>

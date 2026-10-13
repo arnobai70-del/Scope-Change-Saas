@@ -35,9 +35,9 @@ function switchTo(id: number): void {
                         class="data-[state=open]:bg-sidebar-accent"
                     >
                         <div
-                            class="flex aspect-square size-8 items-center justify-center rounded-md text-sm font-semibold text-white"
+                            class="flex aspect-square size-8 items-center justify-center rounded-lg font-display text-sm font-semibold text-white ring-2 ring-white/10"
                             :style="{
-                                background: workspace.brand_color || '#4f46e5',
+                                background: workspace.brand_color || '#5b3df5',
                             }"
                         >
                             {{ workspace.name.slice(0, 1).toUpperCase() }}
@@ -45,11 +45,11 @@ function switchTo(id: number): void {
                         <div
                             class="grid flex-1 text-left text-sm leading-tight"
                         >
-                            <span class="truncate font-semibold">{{
+                            <span class="truncate font-semibold text-white">{{
                                 workspace.name
                             }}</span>
                             <span
-                                class="truncate text-xs text-muted-foreground capitalize"
+                                class="truncate text-xs text-sidebar-foreground/60 capitalize"
                                 >{{ workspace.plan }} plan{{
                                     workspace.on_trial ? ' (trial)' : ''
                                 }}</span

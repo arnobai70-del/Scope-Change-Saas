@@ -40,7 +40,7 @@ const form = useForm({
     currency: props.workspace.currency,
     timezone: props.workspace.timezone,
     service_type: props.workspace.service_type ?? '',
-    brand_color: props.workspace.brand_color || '#4f46e5',
+    brand_color: props.workspace.brand_color || '#5b3df5',
     default_expiry_days: props.workspace.default_expiry_days,
     reminders_enabled: props.workspace.reminders_enabled,
     default_payment_url: props.workspace.default_payment_url ?? '',

@@ -80,7 +80,7 @@ function save(id: number): void {
         <div
             v-for="t in tickets.data"
             :key="t.id"
-            class="rounded-xl border p-4"
+            class="card-lift rounded-2xl border bg-card p-5"
         >
             <p class="font-medium">{{ t.subject }}</p>
             <p class="text-xs text-muted-foreground">
