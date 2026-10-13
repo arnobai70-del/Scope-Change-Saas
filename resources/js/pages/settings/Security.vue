@@ -13,6 +13,7 @@ import ManageTwoFactor from '@/components/ManageTwoFactor.vue';
 // oxfmt-ignore
 type Props = {
     passwordRules: string;
+    adminLocked?: boolean;
 } &
     ManageTwoFactorProps;
 
@@ -34,6 +35,52 @@ defineOptions({
     <Head title="Security settings" />
 
     <h1 class="sr-only">Security settings</h1>
+
+    <div
+        v-if="adminLocked"
+        class="relative mb-8 overflow-hidden rounded-2xl bg-ink p-5 text-white sm:p-6"
+    >
+        <div
+            class="bg-grid-light pointer-events-none absolute inset-0"
+            aria-hidden="true"
+        />
+        <div class="relative">
+            <p
+                class="text-xs font-semibold tracking-[0.14em] text-signal uppercase"
+            >
+                Admin panel locked
+            </p>
+            <h2 class="mt-1 text-xl font-semibold">
+                Turn on two-factor authentication to open the admin panel
+            </h2>
+            <p class="mt-1 text-sm text-white/70">
+                Users, workspaces, feature flags and SEO &amp; analytics (meta
+                tags, Google Analytics, robots.txt, sitemap.xml) unlock as soon
+                as 2FA is on.
+            </p>
+            <ol class="mt-4 grid gap-2 text-sm sm:grid-cols-3">
+                <li
+                    v-for="(step, i) in [
+                        'Click Enable 2FA below',
+                        'Scan the QR code with Google Authenticator',
+                        'Type the 6-digit code to confirm',
+                    ]"
+                    :key="step"
+                    class="rounded-xl border border-white/10 bg-white/5 p-3"
+                >
+                    <span class="font-display font-semibold text-signal"
+                        >0{{ i + 1 }}</span
+                    >
+                    <span class="mt-1 block text-white/85">{{ step }}</span>
+                </li>
+            </ol>
+            <a
+                href="#two-factor"
+                class="mt-4 inline-flex items-center gap-2 rounded-lg bg-signal px-4 py-2 text-sm font-semibold text-ink transition hover:-translate-y-0.5"
+                >Go to Enable 2FA</a
+            >
+        </div>
+    </div>
 
     <div class="space-y-6">
         <Heading
@@ -105,6 +152,7 @@ defineOptions({
         </Form>
     </div>
 
+    <div id="two-factor" class="scroll-mt-6" />
     <ManageTwoFactor
         :canManageTwoFactor="canManageTwoFactor"
         :requiresConfirmation="requiresConfirmation"

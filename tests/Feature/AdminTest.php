@@ -28,7 +28,9 @@ class AdminTest extends TestCase
     {
         $user = User::factory()->create(['is_admin' => true]);
 
-        $this->actingAs($user)->get('/admin')->assertRedirect(route('security.edit'));
+        $this->actingAs($user)->get('/admin/seo')->assertRedirect(route('security.edit'));
+        $this->withSession(['auth.password_confirmed_at' => time()])->get(route('security.edit'))
+            ->assertInertia(fn ($page) => $page->component('settings/Security')->where('adminLocked', true));
     }
 
     public function test_admin_pages_render(): void

@@ -10,6 +10,7 @@ import {
     LayoutGrid,
     ListChecks,
     Plus,
+    Search,
     Settings,
     Shield,
     Users,
@@ -58,7 +59,10 @@ const workspaceNavItems = computed(() => {
     ];
 
     if (page.props.auth.user?.is_admin) {
-        items.push({ title: 'Admin', href: '/admin', icon: Shield });
+        items.push(
+            { title: 'Admin', href: '/admin', icon: Shield },
+            { title: 'SEO & analytics', href: '/admin/seo', icon: Search },
+        );
     }
 
     return items;

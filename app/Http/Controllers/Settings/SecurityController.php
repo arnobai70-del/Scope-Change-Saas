@@ -22,6 +22,10 @@ class SecurityController extends Controller
         $props = [
             'canManageTwoFactor' => Features::canManageTwoFactorAuthentication(),
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
+            // Admins land here when the admin panel is locked until 2FA is confirmed.
+            'adminLocked' => (bool) $request->user()?->is_admin
+                && config('security.admin_requires_2fa')
+                && $request->user()->two_factor_confirmed_at === null,
         ];
 
         if (Features::canManageTwoFactorAuthentication()) {
