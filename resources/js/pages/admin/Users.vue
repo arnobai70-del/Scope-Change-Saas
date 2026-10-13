@@ -32,6 +32,34 @@ type Row = {
 const props = defineProps<{ users: Paginated<Row>; filters: { q: string } }>();
 const q = ref(props.filters.q);
 
+function setAdmin(user: Row, isAdmin: boolean): void {
+    const question = isAdmin
+        ? `Give ${user.email} full admin access?`
+        : `Remove admin access from ${user.email}?`;
+
+    if (confirm(question)) {
+        router.put(
+            `/admin/users/${user.id}/admin`,
+            { is_admin: isAdmin },
+            { preserveScroll: true },
+        );
+    }
+}
+
+function verify(user: Row): void {
+    router.post(`/admin/users/${user.id}/verify`, {}, { preserveScroll: true });
+}
+
+function sendReset(user: Row): void {
+    if (confirm(`Email a password reset link to ${user.email}?`)) {
+        router.post(
+            `/admin/users/${user.id}/password-reset`,
+            {},
+            { preserveScroll: true },
+        );
+    }
+}
+
 function setStatus(user: Row, status: 'active' | 'suspended'): void {
     const reason = prompt(
         `Reason for ${status === 'suspended' ? 'suspending' : 'restoring'} ${user.email}:`,
@@ -50,7 +78,7 @@ function setStatus(user: Row, status: 'active' | 'suspended'): void {
 <template>
     <Head title="Admin · Users" />
     <div class="flex flex-1 flex-col gap-6 p-4">
-        <PageHeader title="Users" />
+        <PageHeader eyebrow="Admin control center" title="Users" />
         <AdminNav />
         <form
             @submit.prevent="
@@ -69,7 +97,7 @@ function setStatus(user: Row, status: 'active' | 'suspended'): void {
                 class="max-w-sm"
             />
         </form>
-        <div class="overflow-x-auto rounded-xl border">
+        <div class="card-lift overflow-x-auto rounded-2xl border bg-card">
             <table class="w-full text-sm">
                 <thead class="bg-muted/50 text-left text-muted-foreground">
                     <tr>
@@ -86,8 +114,8 @@ function setStatus(user: Row, status: 'active' | 'suspended'): void {
                             {{ u.name
                             }}<span
                                 v-if="u.is_admin"
-                                class="ml-1 text-xs text-primary"
-                                >admin</span
+                                class="ml-1.5 rounded-full bg-signal px-2 py-0.5 text-[11px] font-semibold text-ink"
+                                >Admin</span
                             >
                             <p class="text-xs text-muted-foreground">
                                 {{ u.email }} · joined {{ u.created_at }}
@@ -101,7 +129,29 @@ function setStatus(user: Row, status: 'active' | 'suspended'): void {
                             {{ u.last_login_at ?? '—' }}
                         </td>
                         <td class="px-3 py-2 capitalize">{{ u.status }}</td>
-                        <td class="px-3 py-2 text-right">
+                        <td class="px-3 py-2 text-right whitespace-nowrap">
+                            <Button
+                                v-if="!u.verified"
+                                size="sm"
+                                variant="ghost"
+                                @click="verify(u)"
+                                >Verify</Button
+                            >
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                @click="sendReset(u)"
+                                >Reset password</Button
+                            >
+                            <Button
+                                v-if="u.id !== $page.props.auth.user?.id"
+                                size="sm"
+                                variant="ghost"
+                                @click="setAdmin(u, !u.is_admin)"
+                                >{{
+                                    u.is_admin ? 'Remove admin' : 'Make admin'
+                                }}</Button
+                            >
                             <Button
                                 v-if="u.status === 'active'"
                                 size="sm"

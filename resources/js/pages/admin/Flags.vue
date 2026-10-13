@@ -31,6 +31,7 @@ function toggle(key: string, enabled: boolean): void {
     <Head title="Admin · Feature flags" />
     <div class="flex flex-1 flex-col gap-6 p-4">
         <PageHeader
+            eyebrow="Admin control center"
             title="Feature flags"
             description="Overrides stored in the database take precedence over config defaults."
         />

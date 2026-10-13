@@ -37,6 +37,7 @@ const statuses = ['failed', 'pending', 'processed', 'ignored', 'all'];
     <Head title="Admin · Webhooks" />
     <div class="flex flex-1 flex-col gap-6 p-4">
         <PageHeader
+            eyebrow="Admin control center"
             title="Webhook events"
             description="Payloads are not shown; only their hash."
         />
@@ -58,7 +59,7 @@ const statuses = ['failed', 'pending', 'processed', 'ignored', 'all'];
                 >{{ s }}</Button
             >
         </div>
-        <div class="overflow-x-auto rounded-xl border">
+        <div class="card-lift overflow-x-auto rounded-2xl border bg-card">
             <table class="w-full text-sm">
                 <thead class="bg-muted/50 text-left text-muted-foreground">
                     <tr>

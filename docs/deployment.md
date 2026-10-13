@@ -67,4 +67,6 @@ Proof Packs and data exports are written to the private `local` disk (`storage/a
 
 ## Health
 
+Create the first platform admin on the server with `php artisan app:make-admin you@example.com` (it creates the user, or promotes an existing one). The admin must enable two-factor authentication before `/admin` opens.
+
 `/up` returns 200 when the app boots. Monitor queue depth, failed jobs and failed webhooks from the admin dashboard.

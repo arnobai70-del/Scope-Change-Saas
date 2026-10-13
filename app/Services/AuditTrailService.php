@@ -29,7 +29,8 @@ class AuditTrailService
     ): AuditEvent {
         $entityType = $entity->getMorphClass();
         $entityId = (int) $entity->getKey();
-        $workspaceId ??= $entity instanceof Workspace ? $entity->getKey() : $entity->getAttribute('workspace_id');
+        // Platform-level entities (users, flags, webhooks) have no workspace column.
+        $workspaceId ??= $entity instanceof Workspace ? $entity->getKey() : ($entity->getAttributes()['workspace_id'] ?? null);
 
         $previous = AuditEvent::query()
             ->where('entity_type', $entityType)

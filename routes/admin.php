@@ -8,8 +8,12 @@ Route::middleware(['auth', 'verified', EnsureAdmin::class])->prefix('admin')->na
     Route::get('/', 'dashboard')->name('dashboard');
     Route::get('/users', 'users')->name('users');
     Route::put('/users/{user}/status', 'updateUserStatus')->name('users.status');
+    Route::put('/users/{user}/admin', 'updateUserAdmin')->name('users.admin');
+    Route::post('/users/{user}/verify', 'verifyUser')->name('users.verify');
+    Route::post('/users/{user}/password-reset', 'sendPasswordReset')->name('users.password-reset');
     Route::get('/workspaces', 'workspaces')->name('workspaces');
     Route::put('/workspaces/{workspace}/suspension', 'suspendWorkspace')->name('workspaces.suspension');
+    Route::put('/workspaces/{workspace}/trial', 'extendTrial')->name('workspaces.trial');
     Route::get('/webhooks', 'webhooks')->name('webhooks');
     Route::post('/webhooks/{event}/retry', 'retryWebhook')->name('webhooks.retry');
     Route::get('/tickets', 'tickets')->name('tickets');

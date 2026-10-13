@@ -18,7 +18,7 @@ Freelancers, agencies and consultants record the agreed scope of a project, turn
 - **Reports**: approved revenue by month, approval rate, median time to decision, revenue protected per currency.
 - **Teams**: owner, admin and member roles, invitations, seat limits.
 - **Billing**: Paddle Billing as merchant of record (overlay checkout, signed and idempotent webhooks, out-of-order protection, customer portal). Free, Solo, Pro and Agency plans with a 14-day Pro trial. Limits are enforced on the server.
-- **Admin panel** (`/admin`, 2FA required): users, workspaces, suspensions, webhooks with retry, support tickets, feature flags, admin audit log.
+- **Admin panel** (`/admin`, 2FA required): control center with revenue, system health and growth; users (suspend, verify email, send password reset, grant or remove admin), workspaces (suspend, extend trials), webhooks with retry, support tickets, feature flags, admin audit log.
 - **Marketing site**: server-rendered pages, pricing, segment pages, guides, free change request generator, scope creep calculator, legal templates, sitemap and robots.
 - **Privacy**: data export (JSON or CSV), deletion requests, IP retention pruning, email suppression list for bounces and complaints, first-party analytics with an allow-list of properties.
 
@@ -59,7 +59,7 @@ npm run types:check  # vue-tsc
 npm run build
 ```
 
-The suite has 116 tests covering tenant isolation, the state machine, the client portal (valid, wrong token, expired, revoked, superseded revision, double submit, honeypot), payment flow, money handling, Paddle webhook signatures, idempotency and stale events, reminders, Proof Packs, plan limits, the audit hash chain, admin access and every public page. It passes on SQLite and MySQL 8.
+The suite has 124 tests covering tenant isolation, the state machine, the client portal (valid, wrong token, expired, revoked, superseded revision, double submit, honeypot), payment flow, money handling, Paddle webhook signatures, idempotency and stale events, reminders, Proof Packs, plan limits, the audit hash chain, admin access and every public page. It passes on SQLite and MySQL 8.
 
 ## Documentation
 

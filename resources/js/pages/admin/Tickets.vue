@@ -58,7 +58,7 @@ function save(id: number): void {
 <template>
     <Head title="Admin · Support" />
     <div class="flex flex-1 flex-col gap-6 p-4">
-        <PageHeader title="Support tickets" />
+        <PageHeader eyebrow="Admin control center" title="Support tickets" />
         <AdminNav />
         <div class="flex gap-1">
             <Button

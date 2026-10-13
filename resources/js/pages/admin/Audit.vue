@@ -30,11 +30,12 @@ defineProps<{
     <Head title="Admin · Audit" />
     <div class="flex flex-1 flex-col gap-6 p-4">
         <PageHeader
+            eyebrow="Admin control center"
             title="Admin audit log"
             description="Every action taken from this panel."
         />
         <AdminNav />
-        <div class="overflow-x-auto rounded-xl border">
+        <div class="card-lift overflow-x-auto rounded-2xl border bg-card">
             <table class="w-full text-sm">
                 <thead class="bg-muted/50 text-left text-muted-foreground">
                     <tr>

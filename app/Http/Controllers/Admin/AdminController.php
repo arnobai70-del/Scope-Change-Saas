@@ -20,6 +20,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -62,6 +63,20 @@ class AdminController extends Controller
                 'open_tickets' => SupportTicket::query()->where('state', 'open')->count(),
             ],
             'funnel' => $funnel,
+            'recentUsers' => User::query()->latest('id')->limit(6)->get()->map(fn (User $u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'verified' => $u->email_verified_at !== null,
+                'created_at' => $u->created_at?->diffForHumans(),
+            ]),
+            'recentWorkspaces' => Workspace::query()->with('owner')->latest('id')->limit(6)->get()->map(fn (Workspace $w) => [
+                'id' => $w->id,
+                'name' => $w->name,
+                'owner' => $w->owner->email,
+                'plan' => $plans->effectivePlan($w),
+                'created_at' => $w->created_at?->diffForHumans(),
+            ]),
         ]);
     }
 
@@ -111,6 +126,40 @@ class AdminController extends Controller
         return back();
     }
 
+    public function updateUserAdmin(Request $request, User $user): RedirectResponse
+    {
+        $data = $request->validate(['is_admin' => ['required', 'boolean']]);
+
+        abort_if($user->id === $this->user()->id, 422, 'You cannot change your own admin role.');
+
+        $user->forceFill(['is_admin' => $data['is_admin']])->save();
+        $this->audit->record($user, $data['is_admin'] ? 'admin.granted' : 'admin.revoked', ActorType::Admin, $this->user());
+        $this->toast($data['is_admin'] ? 'Admin access granted.' : 'Admin access removed.');
+
+        return back();
+    }
+
+    public function verifyUser(User $user): RedirectResponse
+    {
+        if ($user->email_verified_at === null) {
+            $user->forceFill(['email_verified_at' => Carbon::now()])->save();
+            $this->audit->record($user, 'admin.user_verified', ActorType::Admin, $this->user());
+        }
+
+        $this->toast('Email marked as verified.');
+
+        return back();
+    }
+
+    public function sendPasswordReset(User $user): RedirectResponse
+    {
+        $status = Password::sendResetLink(['email' => $user->email]);
+        $this->audit->record($user, 'admin.password_reset_sent', ActorType::Admin, $this->user());
+        $this->toast($status === Password::RESET_LINK_SENT ? 'Password reset link sent.' : 'A reset link was sent recently. Try again in a minute.');
+
+        return back();
+    }
+
     public function workspaces(Request $request, PlanService $plans): Response
     {
         $search = trim((string) $request->query('q', ''));
@@ -133,6 +182,7 @@ class AdminController extends Controller
                     'change_requests' => $w->getAttribute('change_requests_count'),
                     'suspended' => $w->isSuspended(),
                     'suspension_reason' => $w->suspension_reason,
+                    'trial_ends_at' => $w->onTrial() ? $w->trial_ends_at?->toFormattedDateString() : null,
                     'created_at' => $w->created_at?->toFormattedDateString(),
                 ]),
             'filters' => ['q' => $search],
@@ -150,6 +200,19 @@ class AdminController extends Controller
 
         $this->audit->record($workspace, $data['suspend'] ? 'admin.workspace_suspended' : 'admin.workspace_restored', ActorType::Admin, $this->user(), ['reason' => $data['reason'] ?? null]);
         $this->toast('Workspace updated.');
+
+        return back();
+    }
+
+    public function extendTrial(Request $request, Workspace $workspace): RedirectResponse
+    {
+        $data = $request->validate(['days' => ['required', 'integer', 'min:1', 'max:365']]);
+
+        $from = $workspace->onTrial() ? $workspace->trial_ends_at : Carbon::now();
+        $workspace->forceFill(['trial_ends_at' => $from?->copy()->addDays((int) $data['days'])])->save();
+
+        $this->audit->record($workspace, 'admin.trial_extended', ActorType::Admin, $this->user(), ['days' => (int) $data['days']]);
+        $this->toast('Trial extended to '.$workspace->trial_ends_at?->toFormattedDateString().'.');
 
         return back();
     }

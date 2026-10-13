@@ -27,6 +27,7 @@ type Row = {
     change_requests: number;
     suspended: boolean;
     suspension_reason: string | null;
+    trial_ends_at: string | null;
     created_at: string | null;
 };
 
@@ -35,6 +36,21 @@ const props = defineProps<{
     filters: { q: string };
 }>();
 const q = ref(props.filters.q);
+
+function extendTrial(w: Row): void {
+    const days = prompt(
+        `Extend the Pro trial for ${w.name} by how many days?`,
+        '14',
+    );
+
+    if (days && Number(days) > 0) {
+        router.put(
+            `/admin/workspaces/${w.id}/trial`,
+            { days: Number(days) },
+            { preserveScroll: true },
+        );
+    }
+}
 
 function toggle(w: Row): void {
     if (w.suspended) {
@@ -66,7 +82,7 @@ function toggle(w: Row): void {
 <template>
     <Head title="Admin · Workspaces" />
     <div class="flex flex-1 flex-col gap-6 p-4">
-        <PageHeader title="Workspaces" />
+        <PageHeader eyebrow="Admin control center" title="Workspaces" />
         <AdminNav />
         <form
             @submit.prevent="
@@ -85,7 +101,7 @@ function toggle(w: Row): void {
                 class="max-w-sm"
             />
         </form>
-        <div class="overflow-x-auto rounded-xl border">
+        <div class="card-lift overflow-x-auto rounded-2xl border bg-card">
             <table class="w-full text-sm">
                 <thead class="bg-muted/50 text-left text-muted-foreground">
                     <tr>
@@ -111,11 +127,28 @@ function toggle(w: Row): void {
                                 Suspended: {{ w.suspension_reason }}
                             </p>
                         </td>
-                        <td class="px-3 py-2 capitalize">{{ w.plan }}</td>
+                        <td class="px-3 py-2">
+                            <span
+                                class="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold capitalize"
+                                >{{ w.plan }}</span
+                            >
+                            <p
+                                v-if="w.trial_ends_at"
+                                class="mt-1 text-xs text-muted-foreground"
+                            >
+                                Trial until {{ w.trial_ends_at }}
+                            </p>
+                        </td>
                         <td class="px-3 py-2">{{ w.members }}</td>
                         <td class="px-3 py-2">{{ w.projects }}</td>
                         <td class="px-3 py-2">{{ w.change_requests }}</td>
-                        <td class="px-3 py-2 text-right">
+                        <td class="px-3 py-2 text-right whitespace-nowrap">
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                @click="extendTrial(w)"
+                                >Extend trial</Button
+                            >
                             <Button
                                 size="sm"
                                 variant="ghost"
