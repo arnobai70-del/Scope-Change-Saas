@@ -265,22 +265,98 @@
 
     /* Primary call-to-action used on the server-rendered pages. */
     .btn-primary {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_-6px_rgb(91_61_245/0.7)] transition hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_-6px_rgb(91_61_245/0.7)] transition duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-[0_10px_24px_-8px_rgb(91_61_245/0.8)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 active:translate-y-0;
     }
 
     .btn-ink {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink;
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-ink-soft hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-0;
     }
 
     .btn-signal {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-signal px-4 py-2.5 text-sm font-semibold text-ink transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal;
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-signal px-4 py-2.5 text-sm font-semibold text-ink transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-10px_rgb(132_181_18/0.9)] hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal active:translate-y-0;
     }
 
     .btn-outline {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-ink/15 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-ink/30 hover:bg-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-ink/15 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition duration-200 hover:-translate-y-0.5 hover:border-ink/30 hover:bg-paper hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 active:translate-y-0;
+    }
+
+    /* Cards that rise slightly under the pointer. */
+    .hover-lift {
+        transition:
+            transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+            box-shadow 0.25s ease,
+            border-color 0.25s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            0 2px 4px rgb(20 17 43 / 0.05),
+            0 18px 40px -16px rgb(20 17 43 / 0.25);
+    }
+
+    .dark .hover-lift:hover {
+        box-shadow: 0 18px 40px -16px rgb(0 0 0 / 0.8);
+    }
+
+    /* Arrow or icon inside a .group that nudges right on hover. */
+    .group:hover .nudge {
+        transform: translateX(3px);
+    }
+
+    .nudge {
+        transition: transform 0.2s ease;
+    }
+
+    /* Underline that grows from the left on hover. */
+    .link-grow {
+        background-image: linear-gradient(currentColor, currentColor);
+        background-position: 0 100%;
+        background-repeat: no-repeat;
+        background-size: 0% 1px;
+        transition:
+            background-size 0.25s ease,
+            color 0.2s ease;
+    }
+
+    .link-grow:hover {
+        background-size: 100% 1px;
+    }
+
+    /* The approval stamp in mocks swings a little when its card is hovered. */
+    .group:hover .stamp {
+        transform: rotate(-12deg) scale(1.06);
+    }
+
+    .stamp {
+        transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     .eyebrow {
         @apply inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-semibold tracking-wide text-ink/70;
+    }
+}
+
+@layer base {
+    /* Highlight table rows under the pointer. */
+    tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+    tbody tr:hover {
+        background-color: color-mix(in srgb, var(--muted) 70%, transparent);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hover-lift,
+    .nudge,
+    [class*='btn-'] {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    .stamp {
+        transition: none !important;
     }
 }

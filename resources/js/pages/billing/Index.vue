@@ -186,7 +186,7 @@ if (props.checkoutStatus === 'success') {
             <div
                 v-for="row in usageRows"
                 :key="row.key"
-                class="card-lift rounded-2xl border bg-card p-5"
+                class="card-lift hover-lift rounded-2xl border bg-card p-5 hover:border-primary/30"
             >
                 <p class="text-sm text-muted-foreground">{{ row.label }}</p>
                 <p class="mt-1 text-xl font-semibold">

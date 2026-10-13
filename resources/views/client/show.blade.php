@@ -120,13 +120,13 @@
                 @if($token && $payment->status->value === 'pending')
                     <div class="mt-3 flex flex-col gap-2 sm:flex-row">
                         @if($payment->external_url)
-                            <a href="{{ $route('client.pay') }}" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 font-medium text-white" style="background: {{ $brand }}">Pay {{ $payment->amount()->format() }}</a>
+                            <a href="{{ $route('client.pay') }}" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:brightness-110" style="background: {{ $brand }}">Pay {{ $payment->amount()->format() }}</a>
                         @endif
                         <form method="POST" action="{{ $route('client.payment-sent') }}" class="flex flex-1 flex-col gap-2 sm:flex-row">
                             @csrf
                             <label for="reference" class="sr-only">Payment reference (optional)</label>
                             <input id="reference" name="reference" maxlength="120" placeholder="Payment reference (optional)" class="flex-1 rounded-lg border border-ink/15 bg-white px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 text-sm">
-                            <button class="rounded-lg border border-ink/15 bg-white px-4 py-2 hover:bg-paper text-sm font-medium">I've sent the payment</button>
+                            <button class="rounded-lg border border-ink/15 bg-white px-4 py-2 transition hover:border-ink/30 hover:bg-paper text-sm font-medium">I've sent the payment</button>
                         </form>
                     </div>
                 @endif
@@ -155,11 +155,11 @@
                         <input type="checkbox" name="accept_terms" value="1" class="mt-1" required>
                         <span>I approve this change, including the price of {{ $revision->price()->format() }}, the timeline impact and the payment condition above.</span>
                     </label>
-                    <button class="w-full rounded-xl px-4 py-3.5 text-base font-semibold text-white shadow-lg transition hover:brightness-110" style="background: {{ $brand }}">Approve change</button>
+                    <button class="w-full rounded-xl px-4 py-3.5 text-base font-semibold text-white shadow-lg transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:brightness-110" style="background: {{ $brand }}">Approve change</button>
                 </form>
 
                 <details class="mt-4">
-                    <summary class="cursor-pointer text-sm font-medium text-ink/75">Decline this change</summary>
+                    <summary class="cursor-pointer text-sm font-medium text-ink/75 transition-colors hover:text-red-700">Decline this change</summary>
                     <form method="POST" action="{{ $route('client.decline') }}" class="mt-3 space-y-3">
                         @csrf
                         <input type="hidden" name="revision_id" value="{{ $revision->id }}">
@@ -167,7 +167,7 @@
                         <input type="hidden" name="client_email" value="{{ old('client_email', $changeRequest->recipient_email) }}" data-mirror="client_email">
                         <label for="reason" class="text-sm font-medium">Reason (optional)</label>
                         <textarea id="reason" name="reason" maxlength="2000" rows="3" class="w-full rounded-lg border border-ink/15 bg-white px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"></textarea>
-                        <button class="w-full rounded-lg border border-ink/15 bg-white px-4 py-2.5 font-medium hover:bg-paper">Decline change</button>
+                        <button class="w-full rounded-lg border border-ink/15 bg-white px-4 py-2.5 font-medium transition hover:border-ink/30 hover:bg-paper">Decline change</button>
                     </form>
                 </details>
             </section>
@@ -181,7 +181,7 @@
                     <input type="hidden" name="client_email" value="{{ old('client_email', $changeRequest->recipient_email) }}" data-mirror="client_email">
                     <label for="body" class="sr-only">Your question</label>
                     <textarea id="body" name="body" required maxlength="5000" rows="3" placeholder="What would you like to know?" class="w-full rounded-lg border border-ink/15 bg-white px-3 py-2.5 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"></textarea>
-                    <button class="rounded-lg border border-ink/15 bg-white px-4 py-2 hover:bg-paper text-sm font-medium">Send question</button>
+                    <button class="rounded-lg border border-ink/15 bg-white px-4 py-2 transition hover:border-ink/30 hover:bg-paper text-sm font-medium">Send question</button>
                 </form>
             </section>
         @endif

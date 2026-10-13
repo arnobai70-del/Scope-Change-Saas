@@ -103,7 +103,7 @@ const cards = computed(() => [
 
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <div
-                class="card-lift relative overflow-hidden rounded-2xl bg-ink p-5 text-white dark:bg-brand-950"
+                class="card-lift hover-lift relative overflow-hidden rounded-2xl bg-ink p-5 text-white dark:bg-brand-950"
             >
                 <div
                     class="bg-grid-light pointer-events-none absolute inset-0"
@@ -132,7 +132,7 @@ const cards = computed(() => [
             <div
                 v-for="card in cards"
                 :key="card.label"
-                class="card-lift rounded-2xl border bg-card p-5"
+                class="card-lift hover-lift group rounded-2xl border bg-card p-5 hover:border-primary/30"
             >
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-muted-foreground">
@@ -140,7 +140,7 @@ const cards = computed(() => [
                     </p>
                     <span
                         :class="[
-                            'flex size-8 items-center justify-center rounded-lg',
+                            'flex size-8 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6',
                             card.tone,
                         ]"
                         ><component :is="card.icon" class="size-4"
@@ -173,7 +173,7 @@ const cards = computed(() => [
                     <li v-for="item in queue" :key="item.id">
                         <Link
                             :href="`/app/change-requests/${item.id}`"
-                            class="-mx-2 flex flex-wrap items-center gap-3 rounded-xl px-2 py-3 transition hover:bg-muted"
+                            class="group -mx-2 flex flex-wrap items-center gap-3 rounded-xl px-2 py-3 transition hover:translate-x-1 hover:bg-muted"
                         >
                             <div class="min-w-0 flex-1">
                                 <p class="truncate font-medium">

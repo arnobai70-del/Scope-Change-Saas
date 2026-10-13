@@ -5,13 +5,13 @@
     <p class="text-sm font-medium text-brand-600">{{ $segment['title'] }}</p>
     <h1 class="mt-3 text-4xl font-semibold tracking-tight">{{ $segment['headline'] }}</h1>
     <p class="mx-auto mt-5 max-w-2xl text-lg text-ink/65">{{ $segment['intro'] }}</p>
-    <a href="{{ route('register') }}" class="mt-8 inline-block rounded-md bg-brand-600 px-5 py-3 font-medium text-white hover:bg-brand-500">Start free</a>
+    <a href="{{ route('register') }}" class="mt-8 inline-block rounded-md bg-brand-600 px-5 py-3 font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-lg">Start free</a>
 </section>
 <section class="mx-auto mt-16 max-w-3xl px-4">
     <h2 class="text-xl font-semibold">Requests that become paid changes</h2>
     <ul class="mt-4 space-y-2">
         @foreach($segment['examples'] as $example)
-            <li class="rounded-lg border border-ink/10 px-4 py-3">{{ $example }}</li>
+            <li class="rounded-lg border border-ink/10 px-4 py-3 transition hover:border-brand-300 hover:bg-white hover:shadow-sm">{{ $example }}</li>
         @endforeach
     </ul>
     <p class="mt-8 text-ink/65">Each one becomes a priced change request linked to the original scope, approved by your client on a no-login page, with reminders and a Proof Pack for your records.</p>

@@ -143,13 +143,17 @@ function toggleArchive(): void {
             v-if="current === 'overview'"
             class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
-            <div class="card-lift rounded-2xl border bg-card p-5">
+            <div
+                class="card-lift hover-lift rounded-2xl border bg-card p-5 hover:border-primary/30"
+            >
                 <p class="text-sm text-muted-foreground">Agreed fee</p>
                 <p class="mt-1 text-xl font-semibold">
                     {{ project.base_amount?.formatted ?? '—' }}
                 </p>
             </div>
-            <div class="card-lift rounded-2xl border bg-card p-5">
+            <div
+                class="card-lift hover-lift rounded-2xl border bg-card p-5 hover:border-primary/30"
+            >
                 <p class="text-sm text-muted-foreground">Approved changes</p>
                 <p class="mt-1 text-xl font-semibold">
                     {{ moneyList(summary.approved_totals) }}
@@ -158,13 +162,17 @@ function toggleArchive(): void {
                     {{ summary.approved_count }} approved
                 </p>
             </div>
-            <div class="card-lift rounded-2xl border bg-card p-5">
+            <div
+                class="card-lift hover-lift rounded-2xl border bg-card p-5 hover:border-primary/30"
+            >
                 <p class="text-sm text-muted-foreground">Timeline added</p>
                 <p class="mt-1 text-xl font-semibold">
                     {{ summary.timeline_days }} days
                 </p>
             </div>
-            <div class="card-lift rounded-2xl border bg-card p-5">
+            <div
+                class="card-lift hover-lift rounded-2xl border bg-card p-5 hover:border-primary/30"
+            >
                 <p class="text-sm text-muted-foreground">Scope</p>
                 <p class="mt-1 text-xl font-semibold">
                     {{ baseline ? `v${baseline.version}` : 'Not set' }}

@@ -19,7 +19,7 @@
             <textarea id="body" name="body" rows="6" required maxlength="5000" class="mt-1 w-full rounded-md border border-ink/20 px-3 py-2">{{ old('body') }}</textarea>
             @error('body')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
         </div>
-        <button type="submit" class="rounded-md bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-500">Send message</button>
+        <button type="submit" class="rounded-md bg-brand-600 px-4 py-2 font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-lg">Send message</button>
     </form>
 </section>
 @endsection

@@ -14,8 +14,8 @@
 <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
 <header class="sticky top-0 z-40 border-b border-ink/10 bg-paper/85 backdrop-blur-md">
     <nav class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3" aria-label="Main">
-        <a href="{{ route('home') }}" class="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight">
-            @include('partials.logo', ['class' => 'h-8 w-8'])
+        <a href="{{ route('home') }}" class="group flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight">
+            @include('partials.logo', ['class' => 'h-8 w-8 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110'])
             {{ config('app.name') }}
         </a>
         <div class="hidden items-center gap-1 text-sm font-medium text-ink/70 md:flex">
@@ -36,10 +36,10 @@
                 </summary>
                 <div class="absolute right-0 mt-2 w-56 rounded-xl border border-ink/10 bg-white p-2 card-lift">
                     @foreach($nav as [$href, $label])
-                        <a href="{{ $href }}" class="block rounded-lg px-3 py-2 font-medium hover:bg-paper">{{ $label }}</a>
+                        <a href="{{ $href }}" class="block rounded-lg px-3 py-2 font-medium transition-colors hover:bg-paper hover:text-brand-700">{{ $label }}</a>
                     @endforeach
                     @guest
-                        <a href="{{ route('login') }}" class="block rounded-lg px-3 py-2 font-medium hover:bg-paper">Log in</a>
+                        <a href="{{ route('login') }}" class="block rounded-lg px-3 py-2 font-medium transition-colors hover:bg-paper hover:text-brand-700">Log in</a>
                     @endguest
                 </div>
             </details>
@@ -65,7 +65,7 @@
             </div>
             <div class="flex flex-wrap gap-3">
                 <a href="{{ route('register') }}" class="btn-signal px-5 py-3 text-base">Start free</a>
-                <a href="{{ route('marketing.examples.client-approval') }}" class="inline-flex items-center rounded-lg border border-white/20 px-5 py-3 text-base font-semibold text-white hover:bg-white/10">See the client view</a>
+                <a href="{{ route('marketing.examples.client-approval') }}" class="inline-flex items-center rounded-lg border border-white/20 px-5 py-3 text-base font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/10">See the client view</a>
             </div>
         </div>
     </div>
@@ -105,7 +105,7 @@
                 <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45">{{ $heading }}</p>
                 <ul class="mt-3 space-y-2 text-ink/70">
                     @foreach($links as [$href, $label])
-                        <li><a href="{{ $href }}" class="hover:text-brand-700">{{ $label }}</a></li>
+                        <li><a href="{{ $href }}" class="link-grow transition-colors hover:text-brand-700">{{ $label }}</a></li>
                     @endforeach
                 </ul>
             </div>

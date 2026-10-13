@@ -28,7 +28,7 @@
                 </select>
             </div>
             @if($errors->any())<p class="text-sm text-red-600">{{ $errors->first() }}</p>@endif
-            <button class="rounded-md bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-500">Generate</button>
+            <button class="rounded-md bg-brand-600 px-4 py-2 font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-lg">Generate</button>
         </form>
     </div>
     <div>
@@ -43,7 +43,7 @@
         <div class="mt-6 rounded-xl border border-brand-200 bg-brand-50 p-6">
             <p class="font-semibold">Want a one-click approval instead of "reply Approved"?</p>
             <p class="mt-1 text-sm text-ink/75">Send this as a secure approval link with reminders and a timestamped record.</p>
-            <a href="{{ route('register') }}" class="mt-4 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white">Start free</a>
+            <a href="{{ route('register') }}" class="mt-4 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-lg">Start free</a>
         </div>
     </div>
 </section>

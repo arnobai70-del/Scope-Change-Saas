@@ -15,9 +15,9 @@
             </h1>
             <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink/70">Compare each extra request with the agreed scope, send a priced change request your client approves in one click, and keep timestamped proof of every decision.</p>
             <div class="mt-8 flex flex-wrap gap-3">
-                <a href="{{ route('register') }}" class="btn-primary px-5 py-3 text-base">
+                <a href="{{ route('register') }}" class="group btn-primary px-5 py-3 text-base">
                     Start free, no card needed
-                    <svg viewBox="0 0 20 20" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+                    <svg viewBox="0 0 20 20" class="nudge h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
                 </a>
                 <a href="{{ route('marketing.examples.client-approval') }}" class="btn-outline px-5 py-3 text-base">See the client view</a>
             </div>
@@ -29,12 +29,12 @@
         </div>
 
         {{-- Product mock: the client message becomes an approved, priced change. --}}
-        <div class="relative mx-auto w-full max-w-md" aria-hidden="true">
+        <div class="group relative mx-auto w-full max-w-md" aria-hidden="true">
             <div class="relative z-10 -mb-5 -ml-6 w-fit max-w-[15rem] rotate-[-3deg] rounded-2xl rounded-bl-sm border border-ink/10 bg-white px-4 py-3 text-sm card-lift">
                 <p class="text-xs font-semibold text-ink/50">Client · 10:42</p>
                 <p class="mt-1">"Could you just add a blog section too? Should be quick 🙏"</p>
             </div>
-            <div class="relative rounded-3xl border border-ink/10 bg-white p-6 pt-9 card-lift">
+            <div class="relative rounded-3xl border border-ink/10 bg-white p-6 pt-9 card-lift transition duration-500 group-hover:-translate-y-1 group-hover:rotate-[0.6deg]">
                 <div class="flex items-center justify-between text-xs">
                     <span class="rounded-full bg-paper px-2.5 py-1 font-semibold text-ink/60">CR-0042 · Revision 1</span>
                 </div>
@@ -68,7 +68,7 @@
 <section class="mx-auto max-w-6xl px-4 pt-8">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <h2 class="max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">Three steps from "could you just…" to a signed-off change.</h2>
-        <a href="{{ route('marketing.how-it-works') }}" class="text-sm font-semibold text-brand-700 hover:underline">How it works in detail →</a>
+        <a href="{{ route('marketing.how-it-works') }}" class="group text-sm font-semibold text-brand-700"><span class="link-grow">How it works in detail</span> <span class="nudge inline-block">→</span></a>
     </div>
     <ol class="mt-10 grid gap-5 md:grid-cols-3">
         @foreach([
@@ -76,7 +76,7 @@
             ['Price the extra request', 'Paste the client message, link it to the original scope, add price, timeline impact and a payment condition.', 'bg-white'],
             ['Get a clear approval', 'Your client opens a branded page, no login needed, and approves, declines or asks a question. You get notified instantly.', 'bg-ink text-white'],
         ] as $i => [$heading, $text, $tone])
-            <li class="relative overflow-hidden rounded-3xl border border-ink/10 p-7 {{ $tone }}">
+            <li class="hover-lift relative overflow-hidden rounded-3xl border border-ink/10 p-7 {{ $tone }}">
                 <span class="font-display text-6xl font-bold leading-none {{ $i === 2 ? 'text-signal' : 'text-brand-600/15' }}">0{{ $i + 1 }}</span>
                 <h3 class="mt-6 text-xl font-semibold">{{ $heading }}</h3>
                 <p class="mt-2 text-sm leading-relaxed {{ $i === 2 ? 'text-white/70' : 'text-ink/65' }}">{{ $text }}</p>
@@ -90,7 +90,7 @@
     <p class="eyebrow"><span class="h-1.5 w-1.5 rounded-full bg-brand-600"></span>What's inside</p>
     <h2 class="mt-4 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">Everything you need to <span class="marker">stop working for free</span>.</h2>
     <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-6">
-        <div class="relative overflow-hidden rounded-3xl bg-brand-600 p-7 text-white sm:col-span-2 lg:col-span-4">
+        <div class="hover-lift relative overflow-hidden rounded-3xl bg-brand-600 p-7 text-white sm:col-span-2 lg:col-span-4">
             <div class="bg-grid-light absolute inset-0" aria-hidden="true"></div>
             <div class="relative">
                 <h3 class="text-2xl font-semibold">Immutable revisions</h3>
@@ -108,19 +108,19 @@
             ['Proof Packs', 'One PDF with the baseline, revisions, approval, payment status and a hash-chained activity log.', 'lg:col-span-2'],
             ['Multi-currency', '25 currencies with correct decimals, so a ¥ request never looks like a $ one.', 'lg:col-span-2'],
         ] as [$heading, $text, $span])
-            <div class="rounded-3xl border border-ink/10 bg-white p-7 {{ $span }}">
+            <div class="hover-lift rounded-3xl border border-ink/10 bg-white p-7 hover:border-brand-300 {{ $span }}">
                 <h3 class="text-lg font-semibold">{{ $heading }}</h3>
                 <p class="mt-2 text-sm leading-relaxed text-ink/65">{{ $text }}</p>
             </div>
         @endforeach
-        <div class="rounded-3xl border border-lime-300 bg-signal-soft p-7 sm:col-span-2 lg:col-span-6 lg:flex lg:items-center lg:justify-between lg:gap-10">
+        <div class="group hover-lift rounded-3xl border border-lime-300 bg-signal-soft p-7 sm:col-span-2 lg:col-span-6 lg:flex lg:items-center lg:justify-between lg:gap-10">
             <div>
                 <h3 class="text-lg font-semibold">Revenue reporting</h3>
                 <p class="mt-2 max-w-xl text-sm leading-relaxed text-ink/70">See approved change revenue, approval rate and time to decision across every project.</p>
             </div>
             <div class="mt-5 flex items-end gap-1.5 lg:mt-0" aria-hidden="true">
                 @foreach([30, 45, 38, 60, 52, 74, 68, 90] as $h)
-                    <span class="w-6 rounded-t-md {{ $loop->last ? 'bg-ink' : 'bg-lime-500/70' }}" style="height: {{ $h }}px"></span>
+                    <span class="w-6 origin-bottom rounded-t-md transition-transform duration-300 group-hover:scale-y-110 {{ $loop->last ? 'bg-ink' : 'bg-lime-500/70' }}" style="height: {{ $h }}px"></span>
                 @endforeach
             </div>
         </div>
@@ -146,10 +146,10 @@
             ['Do you process my client payments?', 'No. You add your own payment link (Stripe, PayPal, bank details). We only record whether payment was marked sent and confirmed.'],
             ['Can I cancel anytime?', 'Yes. Cancel from billing settings and keep access until the end of the paid period. Your data stays exportable.'],
         ] as [$q, $a])
-            <details class="group rounded-2xl border border-ink/10 bg-white px-5 py-4 open:card-lift">
+            <details class="group rounded-2xl border border-ink/10 bg-white px-5 py-4 transition hover:border-brand-300 hover:shadow-md open:card-lift">
                 <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
                     {{ $q }}
-                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-paper text-ink/60 transition group-open:rotate-45 group-open:bg-signal group-open:text-ink" aria-hidden="true">+</span>
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-paper text-ink/60 transition group-hover:bg-brand-100 group-hover:text-brand-700 group-open:rotate-45 group-open:bg-signal group-open:text-ink" aria-hidden="true">+</span>
                 </summary>
                 <p class="mt-3 text-sm leading-relaxed text-ink/65">{{ $a }}</p>
             </details>

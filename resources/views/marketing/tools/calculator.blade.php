@@ -17,7 +17,7 @@
             </div>
         @endforeach
         @if($errors->any())<p class="text-sm text-red-600 sm:col-span-2">{{ $errors->first() }}</p>@endif
-        <div class="sm:col-span-2"><button class="rounded-md bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-500">Calculate</button></div>
+        <div class="sm:col-span-2"><button class="rounded-md bg-brand-600 px-4 py-2 font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-lg">Calculate</button></div>
     </form>
 
     @if($result)
@@ -27,7 +27,7 @@
             <div class="rounded-xl border p-5"><p class="text-sm text-ink/55">Unpaid hours a year</p><p class="mt-1 text-2xl font-semibold">{{ number_format($result['hours_per_year'], 1) }}</p></div>
         </div>
         <p class="mt-4 text-sm text-ink/65">Amounts are in the same currency as your hourly rate.</p>
-        <a href="{{ route('register') }}" class="mt-6 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white">Start charging for it, free</a>
+        <a href="{{ route('register') }}" class="mt-6 inline-block rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-lg">Start charging for it, free</a>
     @endif
 </section>
 @endsection

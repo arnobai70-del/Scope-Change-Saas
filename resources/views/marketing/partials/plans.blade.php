@@ -2,9 +2,9 @@
     @foreach($plans as $plan)
         @php($featured = $plan['key'] === 'pro')
         <div @class([
-            'relative flex flex-col rounded-3xl p-6',
+            'hover-lift relative flex flex-col rounded-3xl p-6',
             'bg-ink text-white card-lift lg:-my-3 lg:py-9' => $featured,
-            'border border-ink/10 bg-white' => ! $featured,
+            'border border-ink/10 bg-white hover:border-brand-300' => ! $featured,
         ])>
             @if($featured)
                 <span class="absolute -top-3 left-6 rounded-full bg-signal px-3 py-1 text-xs font-bold text-ink">Most popular</span>

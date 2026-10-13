@@ -4,7 +4,7 @@ defineProps<{ title?: string; description?: string }>();
 
 <template>
     <section
-        class="card-lift rounded-2xl border bg-card p-5 text-card-foreground sm:p-6"
+        class="card-lift rounded-2xl border bg-card p-5 text-card-foreground transition-colors duration-300 hover:border-primary/20 sm:p-6"
     >
         <header
             v-if="title || $slots.actions"

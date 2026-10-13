@@ -69,13 +69,17 @@ function format(minor: number): string {
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">
-            <div class="card-lift rounded-2xl border bg-card p-5">
+            <div
+                class="card-lift hover-lift rounded-2xl border bg-card p-5 hover:border-primary/30"
+            >
                 <p class="text-sm text-muted-foreground">Revenue protected</p>
                 <p class="mt-1 text-xl font-semibold">
                     {{ moneyList(report.revenue_protected) }}
                 </p>
             </div>
-            <div class="card-lift rounded-2xl border bg-card p-5">
+            <div
+                class="card-lift hover-lift rounded-2xl border bg-card p-5 hover:border-primary/30"
+            >
                 <p class="text-sm text-muted-foreground">
                     Approval rate (12 months)
                 </p>
@@ -87,7 +91,9 @@ function format(minor: number): string {
                     }}
                 </p>
             </div>
-            <div class="card-lift rounded-2xl border bg-card p-5">
+            <div
+                class="card-lift hover-lift rounded-2xl border bg-card p-5 hover:border-primary/30"
+            >
                 <p class="text-sm text-muted-foreground">
                     Median time to decision
                 </p>

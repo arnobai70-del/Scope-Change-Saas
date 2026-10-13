@@ -6,7 +6,7 @@
     <div class="mt-10 divide-y divide-ink/10">
         @foreach($posts as $slug => $post)
             <article class="py-6">
-                <h2 class="text-xl font-semibold"><a href="{{ route('blog.post', $slug) }}" class="hover:underline">{{ $post['title'] }}</a></h2>
+                <h2 class="text-xl font-semibold"><a href="{{ route('blog.post', $slug) }}" class="link-grow transition-colors hover:text-brand-700">{{ $post['title'] }}</a></h2>
                 <p class="mt-2 text-ink/65">{{ $post['description'] }}</p>
             </article>
         @endforeach
