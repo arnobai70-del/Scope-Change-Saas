@@ -63,6 +63,8 @@ The suite has 124 tests covering tenant isolation, the state machine, the client
 
 ## Documentation
 
+- [Completion checklist](docs/COMPLETION_CHECKLIST.md): what is done and what is left
+- [Guide for AI coding agents](docs/AI_AGENT_GUIDE.md)
 - [Architecture](docs/architecture.md)
 - [Change request state machine](docs/state-machine.md)
 - [Billing with Paddle](docs/billing.md)
