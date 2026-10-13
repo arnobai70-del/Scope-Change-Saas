@@ -332,6 +332,15 @@
         transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
+    /* Gentle bobbing for decorative chips on the auth panel. */
+    .float-slow {
+        animation: float-y 5s ease-in-out infinite;
+    }
+
+    .float-slow-delay {
+        animation: float-y 5s ease-in-out 2.5s infinite;
+    }
+
     .eyebrow {
         @apply inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-semibold tracking-wide text-ink/70;
     }
@@ -348,7 +357,22 @@
     }
 }
 
+@keyframes float-y {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
+    .float-slow,
+    .float-slow-delay {
+        animation: none !important;
+    }
+
     .hover-lift,
     .nudge,
     [class*='btn-'] {

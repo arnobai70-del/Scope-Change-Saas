@@ -9,6 +9,7 @@ import {
     FolderKanban,
     LayoutGrid,
     ListChecks,
+    Plus,
     Settings,
     Shield,
     Users,
@@ -81,11 +82,26 @@ const workspaceNavItems = computed(() => {
 
         <SidebarContent>
             <NavMain :items="mainNavItems" />
-            <NavMain
-                :items="workspaceNavItems"
-                label="Workspace"
-                class="mt-auto"
-            />
+            <NavMain :items="workspaceNavItems" label="Workspace" />
+            <div
+                class="mx-2 mt-auto mb-2 rounded-xl border border-sidebar-border bg-sidebar-accent/60 p-3 group-data-[collapsible=icon]:hidden"
+            >
+                <p class="text-xs font-semibold text-white">
+                    Client asked for something extra?
+                </p>
+                <p
+                    class="mt-1 text-[11px] leading-snug text-sidebar-foreground/80"
+                >
+                    Price it and send an approval link in a minute.
+                </p>
+                <Link
+                    href="/app/change-requests/create"
+                    class="mt-2.5 flex items-center justify-center gap-1.5 rounded-lg bg-signal px-3 py-1.5 text-xs font-semibold text-ink transition duration-200 hover:-translate-y-0.5 hover:brightness-95"
+                >
+                    <Plus class="size-3.5" />
+                    New change request
+                </Link>
+            </div>
         </SidebarContent>
 
         <SidebarFooter>
