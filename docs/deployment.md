@@ -49,7 +49,7 @@ To open the app from any network without a server, run a Cloudflare quick tunnel
 
 ```bash
 # once (Windows): winget install --id Cloudflare.cloudflared
-# in .env: TRUSTED_PROXIES=127.0.0.1, then php artisan config:clear
+# with APP_ENV=local, 127.0.0.1 is trusted automatically (otherwise set TRUSTED_PROXIES=127.0.0.1)
 php artisan serve
 cloudflared tunnel --url http://127.0.0.1:8000
 ```
