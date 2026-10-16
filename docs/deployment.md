@@ -43,17 +43,22 @@ php artisan queue:restart
 - Queue: `php artisan queue:work redis --tries=3 --backoff=10` under Supervisor or systemd (or Laravel Horizon).
 - Scheduler: `* * * * * php /path/artisan schedule:run` (expiry every 5 minutes, reminders every 15 minutes, trial notices daily, weekly digest, daily privacy pruning).
 
-## Behind a proxy or load balancer
+## Share from your own computer (demo)
 
-If TLS terminates at a load balancer, trust it in `bootstrap/app.php`:
+To open the app from any network without a server, run a Cloudflare quick tunnel next to `php artisan serve`:
 
-```php
-->withMiddleware(function (Middleware $middleware) {
-    $middleware->trustProxies(at: ['10.0.0.0/8']);
-})
+```bash
+# once (Windows): winget install --id Cloudflare.cloudflared
+# in .env: TRUSTED_PROXIES=127.0.0.1, then php artisan config:clear
+php artisan serve
+cloudflared tunnel --url http://127.0.0.1:8000
 ```
 
-so that client IPs, HTTPS URLs and signed links are correct.
+Cloudflared prints an `https://….trycloudflare.com` address that works from any device until you stop it. The address changes on every run and the computer must stay on, so use a real server for production.
+
+## Behind a proxy or load balancer
+
+If TLS terminates at a load balancer, trust it with `TRUSTED_PROXIES=10.0.0.0/8` (comma-separated IPs or CIDRs) so that client IPs, HTTPS URLs and signed links are correct.
 
 ## Storage
 

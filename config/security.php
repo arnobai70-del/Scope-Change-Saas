@@ -13,6 +13,10 @@ return [
     // Send an HSTS header in production once HTTPS is validated.
     'hsts' => (bool) env('SECURITY_HSTS', false),
 
+    // Proxies whose X-Forwarded-* headers are trusted (a local tunnel such as
+    // cloudflared or ngrok, or a load balancer). Comma-separated IPs or CIDRs, or *.
+    'trusted_proxies' => array_values(array_filter(array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', ''))))),
+
     // Admin impersonation is intentionally not implemented in the MVP.
     'impersonation_enabled' => false,
 

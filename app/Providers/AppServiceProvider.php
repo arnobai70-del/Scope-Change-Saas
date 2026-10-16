@@ -8,6 +8,7 @@ use App\Support\TenantContext;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
@@ -29,9 +30,22 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+    /**
+     * Trust X-Forwarded-* headers only from the proxies listed in TRUSTED_PROXIES.
+     */
+    protected function configureTrustedProxies(): void
+    {
+        $proxies = config()->array('security.trusted_proxies');
+
+        if ($proxies !== []) {
+            TrustProxies::at($proxies === ['*'] ? '*' : $proxies);
+        }
+    }
+
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureTrustedProxies();
         $this->configureModels();
         $this->configureRateLimiting();
         $this->configureRoutes();
