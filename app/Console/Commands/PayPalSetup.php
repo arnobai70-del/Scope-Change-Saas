@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\PayPalClient;
+use App\Support\EnvFile;
 use App\Support\Money;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -10,7 +11,7 @@ use Illuminate\Console\Command;
 use Throwable;
 
 #[Signature('billing:paypal-setup {--webhook-url= : Public HTTPS URL of /webhooks/paypal, to register the webhook}')]
-#[Description('Create the PayPal product and subscription plans (and optionally the webhook) and print the .env lines')]
+#[Description('Create the PayPal product and subscription plans (and optionally the webhook) and save the ids to .env')]
 class PayPalSetup extends Command
 {
     public const WEBHOOK_EVENTS = [
@@ -124,14 +125,20 @@ class PayPalSetup extends Command
             }
         }
 
-        $this->newLine();
-        $this->info('Add these lines to .env, then run php artisan config:clear:');
-        $this->newLine();
-        $this->line('BILLING_PROVIDER=paypal');
-        $this->line('PAYPAL_MODE='.$mode);
+        $values = ['BILLING_PROVIDER' => 'paypal', 'PAYPAL_MODE' => $mode];
 
         foreach ($lines as $line) {
-            $this->line($line);
+            [$key, $value] = explode('=', $line, 2);
+            $values[$key] = $value;
+        }
+
+        $this->newLine();
+
+        EnvFile::set(app()->environmentFilePath(), $values);
+        $this->info('Saved to .env. Now run: php artisan config:clear');
+
+        foreach ($values as $key => $value) {
+            $this->line("{$key}={$value}");
         }
 
         return self::SUCCESS;

@@ -27,6 +27,9 @@ class PayPalBillingTest extends TestCase
 
     private string $verification = 'SUCCESS';
 
+    /** @var list<array<string, mixed>> */
+    private array $listedPlans = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -53,6 +56,7 @@ class PayPalBillingTest extends TestCase
                 ], 201),
                 str_ends_with($path, '/cancel') => Http::response(null, 204),
                 $path === '/v1/catalogs/products' => Http::response(['id' => 'PROD-1'], 201),
+                $path === '/v1/billing/plans' && $request->method() === 'GET' => Http::response(['plans' => $this->listedPlans]),
                 $path === '/v1/billing/plans' => Http::response(['id' => 'P-'.strtoupper(substr(md5((string) json_encode($request->data())), 0, 10))], 201),
                 str_starts_with($path, '/v1/billing/subscriptions/') => isset($this->remote[basename($path)])
                     ? Http::response($this->remote[basename($path)])
@@ -235,15 +239,53 @@ class PayPalBillingTest extends TestCase
         $this->actingAs($owner)->post('/app/billing/resume')->assertSessionHasErrors('billing');
     }
 
-    public function test_setup_command_creates_plans_and_prints_env_lines(): void
+    public function test_setup_command_creates_plans_and_saves_them_to_env(): void
     {
+        $dir = $this->tempEnvDirectory("APP_NAME=Test\nPAYPAL_PLAN_PRO_MONTHLY=\n");
+
         $this->artisan('billing:paypal-setup')
             ->expectsOutputToContain('Connected to PayPal (sandbox)')
-            ->expectsOutputToContain('PAYPAL_PLAN_PRO_MONTHLY=P-')
-            ->expectsOutputToContain('PAYPAL_PLAN_AGENCY_YEARLY=P-')
+            ->expectsOutputToContain('Saved to .env')
             ->assertSuccessful();
 
         Http::assertSent(fn (Request $request) => $request->url() === self::API.'/v1/billing/plans'
             && data_get($request->data(), 'billing_cycles.0.pricing_scheme.fixed_price.value') === '24.00');
+
+        $env = (string) file_get_contents($dir.'/.env');
+        $this->assertStringContainsString('APP_NAME=Test', $env);
+        $this->assertStringContainsString('BILLING_PROVIDER=paypal', $env);
+        $this->assertMatchesRegularExpression('/^PAYPAL_PLAN_PRO_MONTHLY=P-[A-Z0-9]+$/m', $env);
+        $this->assertSame(1, substr_count($env, 'PAYPAL_PLAN_PRO_MONTHLY='));
+    }
+
+    public function test_env_command_writes_existing_plan_ids(): void
+    {
+        $dir = $this->tempEnvDirectory("APP_NAME=Test\nPAYPAL_MODE=sandbox\n");
+        $this->listedPlans = [];
+
+        foreach (['Solo', 'Pro', 'Agency'] as $name) {
+            foreach (['monthly', 'yearly'] as $interval) {
+                $this->listedPlans[] = ['id' => 'P-'.strtoupper($name.$interval), 'name' => "{$name} ({$interval})", 'status' => 'ACTIVE', 'create_time' => '2026-10-17T00:23:00Z'];
+            }
+        }
+        $this->listedPlans[] = ['id' => 'P-OLDPRO', 'name' => 'Pro (monthly)', 'status' => 'ACTIVE', 'create_time' => '2026-10-01T00:00:00Z'];
+
+        $this->artisan('billing:paypal-env')->expectsOutputToContain('Saved to .env')->assertSuccessful();
+
+        $env = (string) file_get_contents($dir.'/.env');
+        $this->assertStringContainsString('PAYPAL_PLAN_PRO_MONTHLY=P-PROMONTHLY', $env);
+        $this->assertStringContainsString('PAYPAL_PLAN_AGENCY_YEARLY=P-AGENCYYEARLY', $env);
+        $this->assertStringContainsString('BILLING_PROVIDER=paypal', $env);
+        $this->assertSame(1, substr_count($env, 'PAYPAL_MODE='));
+    }
+
+    private function tempEnvDirectory(string $contents): string
+    {
+        $dir = sys_get_temp_dir().'/paypal-env-'.bin2hex(random_bytes(4));
+        mkdir($dir);
+        file_put_contents($dir.'/.env', $contents);
+        $this->app->useEnvironmentPath($dir);
+
+        return $dir;
     }
 }

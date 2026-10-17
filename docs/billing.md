@@ -35,8 +35,8 @@ Set `BILLING_PROVIDER=paypal` to send new checkouts to PayPal instead of Paddle.
 ### Setup
 
 1. In [developer.paypal.com](https://developer.paypal.com), open Apps & Credentials, pick Sandbox or Live, and copy the app's Client ID and Secret into `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET`. Set `PAYPAL_MODE` to `sandbox` or `live` to match. Never commit these keys.
-2. Run `php artisan config:clear`, then `php artisan billing:paypal-setup --webhook-url=https://your-domain/webhooks/paypal`. It creates the product, one plan per paid plan and interval (prices from `config/plans.php`), registers the webhook, and prints the `.env` lines (`PAYPAL_PLAN_*`, `PAYPAL_WEBHOOK_ID`). Leave out `--webhook-url` when the site has no stable public address yet.
-3. Paste the lines into `.env` and run `php artisan config:clear` again.
+2. Run `php artisan config:clear`, then `php artisan billing:paypal-setup --webhook-url=https://your-domain/webhooks/paypal`. It creates the product, one plan per paid plan and interval (prices from `config/plans.php`), registers the webhook, and saves `BILLING_PROVIDER`, `PAYPAL_MODE`, `PAYPAL_PLAN_*` and `PAYPAL_WEBHOOK_ID` to `.env`. Leave out `--webhook-url` when the site has no stable public address yet. If the plans already exist, `php artisan billing:paypal-env` reads them from PayPal and writes the ids to `.env` without creating new ones.
+3. Run `php artisan config:clear` again.
 
 ### Flow
 
