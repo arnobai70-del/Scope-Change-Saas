@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import Field from '@/components/app/Field.vue';
 import NativeSelect from '@/components/app/NativeSelect.vue';
-import TextArea from '@/components/app/TextArea.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -14,15 +12,12 @@ const props = defineProps<{
         currency: string;
         timezone: string;
         service_type: string | null;
-        default_payment_url: string | null;
-        default_payment_instructions: string | null;
     };
     currencies: string[];
     timezones: string[];
 }>();
 
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const step = ref(1);
 
 const form = useForm({
     name: props.workspace.name,
@@ -33,9 +28,6 @@ const form = useForm({
             ? browserTimezone
             : props.workspace.timezone,
     service_type: props.workspace.service_type ?? '',
-    default_payment_url: props.workspace.default_payment_url ?? '',
-    default_payment_instructions:
-        props.workspace.default_payment_instructions ?? '',
 });
 
 const serviceTypes = [
@@ -49,15 +41,7 @@ const serviceTypes = [
 ];
 
 function submit(): void {
-    form.post('/app/onboarding', {
-        onError: () => {
-            step.value =
-                form.errors.default_payment_url ||
-                form.errors.default_payment_instructions
-                    ? 2
-                    : 1;
-        },
-    });
+    form.post('/app/onboarding');
 }
 </script>
 
@@ -78,148 +62,77 @@ function submit(): void {
                 {{ $page.props.name }}
             </div>
             <div class="card-lift rounded-3xl border bg-card p-6 sm:p-8">
-                <div class="flex items-center gap-3">
-                    <p
-                        class="text-xs font-semibold tracking-[0.14em] text-primary uppercase"
-                    >
-                        Step {{ step }} of 2
-                    </p>
-                    <div class="flex flex-1 gap-1.5" aria-hidden="true">
-                        <span class="h-1.5 flex-1 rounded-full bg-primary" />
-                        <span
-                            :class="[
-                                'h-1.5 flex-1 rounded-full',
-                                step === 2 ? 'bg-primary' : 'bg-muted',
-                            ]"
-                        />
-                    </div>
-                </div>
-                <h1
-                    class="mt-4 font-display text-3xl font-semibold tracking-tight"
-                >
-                    {{
-                        step === 1
-                            ? 'Set up your workspace'
-                            : 'How clients pay you'
-                    }}
+                <h1 class="font-display text-3xl font-semibold tracking-tight">
+                    Set up your workspace
                 </h1>
                 <p class="mt-2 text-sm text-muted-foreground">
-                    {{
-                        step === 1
-                            ? 'This is what clients see on change requests. You can change it later.'
-                            : 'Optional. We prefill this on change requests that need payment. We never handle client money.'
-                    }}
+                    This is what clients see on change requests. You can change
+                    it later.
                 </p>
 
-                <form
-                    class="mt-6 grid gap-5"
-                    @submit.prevent="step === 1 ? (step = 2) : submit()"
-                >
-                    <template v-if="step === 1">
-                        <Field
-                            label="Business or studio name"
-                            for="name"
-                            :error="form.errors.name"
-                        >
-                            <Input
-                                id="name"
-                                v-model="form.name"
-                                required
-                                maxlength="120"
-                                autocomplete="organization"
-                            />
-                        </Field>
-                        <Field
-                            label="Main currency"
-                            for="currency"
-                            :error="form.errors.currency"
-                        >
-                            <NativeSelect id="currency" v-model="form.currency">
-                                <option
-                                    v-for="c in currencies"
-                                    :key="c"
-                                    :value="c"
-                                >
-                                    {{ c }}
-                                </option>
-                            </NativeSelect>
-                        </Field>
-                        <Field
-                            label="Timezone"
-                            for="timezone"
-                            :error="form.errors.timezone"
-                            hint="Used for deadlines, reminders and timestamps."
-                        >
-                            <NativeSelect id="timezone" v-model="form.timezone">
-                                <option
-                                    v-for="tz in timezones"
-                                    :key="tz"
-                                    :value="tz"
-                                >
-                                    {{ tz }}
-                                </option>
-                            </NativeSelect>
-                        </Field>
-                        <Field
-                            label="What do you do?"
-                            for="service_type"
-                            :error="form.errors.service_type"
-                        >
-                            <NativeSelect
-                                id="service_type"
-                                v-model="form.service_type"
+                <form class="mt-6 grid gap-5" @submit.prevent="submit">
+                    <Field
+                        label="Business or studio name"
+                        for="name"
+                        :error="form.errors.name"
+                    >
+                        <Input
+                            id="name"
+                            v-model="form.name"
+                            required
+                            maxlength="120"
+                            autocomplete="organization"
+                        />
+                    </Field>
+                    <Field
+                        label="Main currency"
+                        for="currency"
+                        :error="form.errors.currency"
+                    >
+                        <NativeSelect id="currency" v-model="form.currency">
+                            <option v-for="c in currencies" :key="c" :value="c">
+                                {{ c }}
+                            </option>
+                        </NativeSelect>
+                    </Field>
+                    <Field
+                        label="Timezone"
+                        for="timezone"
+                        :error="form.errors.timezone"
+                        hint="Used for deadlines, reminders and timestamps."
+                    >
+                        <NativeSelect id="timezone" v-model="form.timezone">
+                            <option
+                                v-for="tz in timezones"
+                                :key="tz"
+                                :value="tz"
                             >
-                                <option value="">Choose one</option>
-                                <option
-                                    v-for="s in serviceTypes"
-                                    :key="s"
-                                    :value="s"
-                                >
-                                    {{ s }}
-                                </option>
-                            </NativeSelect>
-                        </Field>
-                        <Button type="submit">Continue</Button>
-                    </template>
-
-                    <template v-else>
-                        <Field
-                            label="Payment link"
-                            for="default_payment_url"
-                            :error="form.errors.default_payment_url"
-                            hint="A Stripe, PayPal or invoice link. Must start with https://"
+                                {{ tz }}
+                            </option>
+                        </NativeSelect>
+                    </Field>
+                    <Field
+                        label="What do you do?"
+                        for="service_type"
+                        :error="form.errors.service_type"
+                    >
+                        <NativeSelect
+                            id="service_type"
+                            v-model="form.service_type"
                         >
-                            <Input
-                                id="default_payment_url"
-                                v-model="form.default_payment_url"
-                                type="url"
-                                placeholder="https://"
-                            />
-                        </Field>
-                        <Field
-                            label="Payment instructions"
-                            for="default_payment_instructions"
-                            :error="form.errors.default_payment_instructions"
-                        >
-                            <TextArea
-                                id="default_payment_instructions"
-                                v-model="form.default_payment_instructions"
-                                :rows="3"
-                                placeholder="Bank transfer details or other instructions"
-                            />
-                        </Field>
-                        <div class="flex gap-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                @click="step = 1"
-                                >Back</Button
+                            <option value="">Choose one</option>
+                            <option
+                                v-for="s in serviceTypes"
+                                :key="s"
+                                :value="s"
                             >
-                            <Button type="submit" :disabled="form.processing"
-                                >Finish setup</Button
-                            >
-                        </div>
-                    </template>
+                                {{ s }}
+                            </option>
+                        </NativeSelect>
+                    </Field>
+                    <Button type="submit" :disabled="form.processing"
+                        >Finish setup</Button
+                    >
                 </form>
             </div>
         </main>

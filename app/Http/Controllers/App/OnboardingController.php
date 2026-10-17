@@ -23,7 +23,7 @@ class OnboardingController extends Controller
         }
 
         return Inertia::render('onboarding/Wizard', [
-            'workspace' => $workspace->only(['name', 'currency', 'timezone', 'service_type', 'default_payment_url', 'default_payment_instructions']),
+            'workspace' => $workspace->only(['name', 'currency', 'timezone', 'service_type']),
             'currencies' => Money::SUPPORTED_CURRENCIES,
             'timezones' => timezone_identifiers_list(),
         ]);
@@ -36,8 +36,6 @@ class OnboardingController extends Controller
             'currency' => ['required', Rule::in(Money::SUPPORTED_CURRENCIES)],
             'timezone' => ['required', 'timezone:all'],
             'service_type' => ['nullable', 'string', 'max:60'],
-            'default_payment_url' => ['nullable', 'url:https', 'max:2048'],
-            'default_payment_instructions' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $workspace = $this->workspace();
