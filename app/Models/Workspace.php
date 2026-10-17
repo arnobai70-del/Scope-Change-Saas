@@ -159,7 +159,9 @@ class Workspace extends Model
     public function activeSubscription(): ?Subscription
     {
         return $this->subscriptions()
-            ->whereIn('status', Subscription::ACTIVE_STATUSES)
+            ->where(fn ($query) => $query
+                ->whereIn('status', Subscription::ACTIVE_STATUSES)
+                ->orWhere(fn ($grace) => $grace->where('status', 'canceled')->where('cancels_at', '>', now())))
             ->latest('id')
             ->first();
     }

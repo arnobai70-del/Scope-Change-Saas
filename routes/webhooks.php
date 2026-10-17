@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Webhooks\MailWebhookController;
 use App\Http\Controllers\Webhooks\PaddleWebhookController;
+use App\Http\Controllers\Webhooks\PayPalWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -10,5 +11,6 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('webhooks')->middleware('throttle:webhooks')->group(function () {
     Route::post('/paddle', PaddleWebhookController::class)->name('webhooks.paddle');
+    Route::post('/paypal', PayPalWebhookController::class)->name('webhooks.paypal');
     Route::post('/mail', MailWebhookController::class)->name('webhooks.mail');
 });

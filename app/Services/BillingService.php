@@ -13,9 +13,10 @@ use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 /**
- * Paddle Billing integration for the SaaS subscription. Checkout happens in
- * Paddle's hosted overlay; plan access only changes when a signed webhook
- * arrives, never from the frontend success redirect.
+ * SaaS subscription billing. Paddle checkout happens in Paddle's hosted
+ * overlay and PayPal checkout on PayPal's approval page (BILLING_PROVIDER
+ * picks which one new checkouts use). Plan access only changes from
+ * provider data verified on the server, never from a browser redirect.
  */
 class BillingService
 {
@@ -23,10 +24,21 @@ class BillingService
         private readonly AuditTrailService $audit,
         private readonly AnalyticsService $analytics,
         private readonly PlanService $plans,
+        private readonly PayPalBilling $paypal,
+        private readonly PayPalClient $paypalClient,
     ) {}
+
+    public function provider(): string
+    {
+        return config('billing.provider') === 'paypal' ? 'paypal' : 'paddle';
+    }
 
     public function isConfigured(): bool
     {
+        if ($this->provider() === 'paypal') {
+            return $this->paypal->isConfigured();
+        }
+
         return filled(config('billing.paddle.client_side_token')) && filled(config('billing.paddle.webhook_secret'));
     }
 
@@ -63,7 +75,8 @@ class BillingService
     }
 
     /**
-     * Options for Paddle.js Checkout.open().
+     * Options for Paddle.js Checkout.open(), or a PayPal approval URL to
+     * redirect to.
      *
      * @return array<string, mixed>
      */
@@ -73,19 +86,27 @@ class BillingService
             throw ValidationException::withMessages(['plan' => 'Choose a valid paid plan.']);
         }
 
+        if ($workspace->activeSubscription() !== null) {
+            throw ValidationException::withMessages(['plan' => 'This workspace already has a subscription. Use Manage billing to change plans.']);
+        }
+
+        if ($this->provider() === 'paypal') {
+            $url = $this->paypal->checkoutUrl($workspace, $user, $plan, $interval);
+            $this->analytics->track('checkout_started', $workspace->id, $user->id, ['plan' => $plan, 'interval' => $interval]);
+
+            return ['provider' => 'paypal', 'redirect' => $url];
+        }
+
         $priceId = $this->priceId($plan, $interval);
 
         if (! $this->isConfigured() || $priceId === null) {
             throw ValidationException::withMessages(['plan' => 'Online checkout is not configured yet. Please contact support.']);
         }
 
-        if ($workspace->activeSubscription() !== null) {
-            throw ValidationException::withMessages(['plan' => 'This workspace already has a subscription. Use Manage billing to change plans.']);
-        }
-
         $this->analytics->track('checkout_started', $workspace->id, $user->id, ['plan' => $plan, 'interval' => $interval]);
 
         return [
+            'provider' => 'paddle',
             'environment' => config('billing.paddle.sandbox') ? 'sandbox' : 'production',
             'token' => config('billing.paddle.client_side_token'),
             'items' => [['priceId' => $priceId, 'quantity' => 1]],
@@ -100,6 +121,12 @@ class BillingService
 
     public function cancel(Subscription $subscription, User $user): void
     {
+        if ($subscription->provider === 'paypal') {
+            $this->paypal->cancel($subscription, $user);
+
+            return;
+        }
+
         $response = $this->api()->post("/subscriptions/{$subscription->provider_subscription_id}/cancel", [
             'effective_from' => 'next_billing_period',
         ]);
@@ -114,6 +141,10 @@ class BillingService
 
     public function resume(Subscription $subscription, User $user): void
     {
+        if ($subscription->provider === 'paypal') {
+            throw ValidationException::withMessages(['billing' => 'A cancelled PayPal subscription cannot be resumed. You keep access until the period ends, then you can subscribe again.']);
+        }
+
         $response = $this->api()->patch("/subscriptions/{$subscription->provider_subscription_id}", [
             'scheduled_change' => null,
         ]);
@@ -132,6 +163,10 @@ class BillingService
      */
     public function portalUrl(Subscription $subscription): string
     {
+        if ($subscription->provider === 'paypal') {
+            return $this->paypalClient->autopayUrl();
+        }
+
         if ($subscription->provider_customer_id === null) {
             throw ValidationException::withMessages(['billing' => 'No billing customer is linked to this workspace yet.']);
         }

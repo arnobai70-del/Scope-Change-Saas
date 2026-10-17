@@ -31,6 +31,7 @@ const props = defineProps<{
         interval: string | null;
         renews_at: string | null;
         cancels_at: string | null;
+        provider: string;
     } | null;
     usage: {
         active_projects: Limit;
@@ -45,6 +46,7 @@ const props = defineProps<{
         billed_at: string | null;
     }[];
     checkoutConfigured: boolean;
+    provider: 'paddle' | 'paypal';
     isOwner: boolean;
     checkoutStatus: string | null;
 }>();
@@ -88,6 +90,8 @@ async function checkout(plan: string): Promise<void> {
 
     try {
         const options = await postJson<{
+            provider?: string;
+            redirect?: string;
             environment: string;
             token: string;
             items: unknown[];
@@ -95,6 +99,14 @@ async function checkout(plan: string): Promise<void> {
             customData: unknown;
             settings: unknown;
         }>('/app/billing/checkout', { plan, interval: interval.value });
+
+        if (options.provider === 'paypal' && options.redirect) {
+            // Continue on PayPal's approval page.
+            window.location.href = options.redirect;
+
+            return;
+        }
+
         const paddle = await loadPaddle();
 
         if (!initialized) {
@@ -145,6 +157,12 @@ if (props.checkoutStatus === 'success') {
     toast.success(
         'Thanks! Your subscription is being activated. This page updates within a minute.',
     );
+} else if (props.checkoutStatus === 'pending') {
+    toast.info(
+        'PayPal is still confirming your subscription. Refresh this page in a minute.',
+    );
+} else if (props.checkoutStatus === 'canceled') {
+    toast.info('Checkout was cancelled. You have not been charged.');
 }
 </script>
 
@@ -157,12 +175,26 @@ if (props.checkoutStatus === 'success') {
         >
             <template v-if="subscription && isOwner">
                 <Button variant="outline" as-child
-                    ><a href="/app/billing/portal"
-                        >Manage payment method</a
+                    ><a
+                        href="/app/billing/portal"
+                        :target="
+                            subscription.provider === 'paypal'
+                                ? '_blank'
+                                : undefined
+                        "
+                        rel="noopener"
+                        >{{
+                            subscription.provider === 'paypal'
+                                ? 'Manage on PayPal'
+                                : 'Manage payment method'
+                        }}</a
                     ></Button
                 >
                 <Button
-                    v-if="subscription.cancels_at"
+                    v-if="
+                        subscription.cancels_at &&
+                        subscription.provider !== 'paypal'
+                    "
                     @click="
                         router.post(
                             '/app/billing/resume',
@@ -173,7 +205,7 @@ if (props.checkoutStatus === 'success') {
                     >Resume subscription</Button
                 >
                 <Button
-                    v-else
+                    v-else-if="!subscription.cancels_at"
                     variant="ghost"
                     class="text-destructive"
                     @click="cancel"
@@ -287,7 +319,14 @@ if (props.checkoutStatus === 'success') {
             >
                 Online checkout is not configured on this installation yet.
             </p>
-            <p class="text-xs text-muted-foreground">
+            <p
+                v-if="provider === 'paypal'"
+                class="text-xs text-muted-foreground"
+            >
+                Payments are processed securely by PayPal. You can pay with your
+                PayPal balance or a card and cancel any time.
+            </p>
+            <p v-else class="text-xs text-muted-foreground">
                 Payments are processed by Paddle, our merchant of record, which
                 handles tax and invoices.
             </p>

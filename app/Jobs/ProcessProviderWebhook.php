@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\WebhookEvent;
 use App\Services\PaddleWebhookHandler;
+use App\Services\PayPalWebhookHandler;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +21,7 @@ class ProcessProviderWebhook implements ShouldQueue
 
     public function __construct(public readonly int $webhookEventId) {}
 
-    public function handle(PaddleWebhookHandler $handler): void
+    public function handle(PaddleWebhookHandler $paddle, PayPalWebhookHandler $paypal): void
     {
         $event = WebhookEvent::query()->find($this->webhookEventId);
 
@@ -32,7 +33,10 @@ class ProcessProviderWebhook implements ShouldQueue
         $event->increment('attempts');
 
         try {
-            $handler->handle($event);
+            match ($event->provider) {
+                'paypal' => $paypal->handle($event),
+                default => $paddle->handle($event),
+            };
         } catch (Throwable $e) {
             $event->forceFill(['status' => 'failed', 'error' => mb_substr($e->getMessage(), 0, 1000)])->save();
 

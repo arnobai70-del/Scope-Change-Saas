@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Services\AnalyticsService;
 use App\Services\BillingService;
+use App\Services\PayPalBilling;
 use App\Services\PlanService;
 use App\Services\UsageLimitService;
 use App\Support\Money;
@@ -46,6 +47,7 @@ class BillingController extends Controller
                 'interval' => $subscription->billing_interval,
                 'renews_at' => $subscription->current_period_ends_at?->toFormattedDateString(),
                 'cancels_at' => $subscription->cancels_at?->toFormattedDateString(),
+                'provider' => $subscription->provider,
             ] : null,
             'usage' => $usage->summary($workspace),
             'invoices' => Transaction::query()->where('workspace_id', $workspace->id)->latest('billed_at')->limit(24)->get()->map(fn (Transaction $t) => [
@@ -56,13 +58,15 @@ class BillingController extends Controller
                 'billed_at' => $t->billed_at?->toFormattedDateString(),
             ]),
             'checkoutConfigured' => $this->billing->isConfigured(),
+            'provider' => $this->billing->provider(),
             'isOwner' => $workspace->owner_user_id === $this->user()->id,
             'checkoutStatus' => $request->query('checkout'),
         ]);
     }
 
     /**
-     * Returns Paddle.js options; plan access is granted later by webhook.
+     * Returns Paddle.js options or a PayPal approval URL; plan access is
+     * granted from provider data verified on the server.
      */
     public function checkout(Request $request): JsonResponse
     {
@@ -75,6 +79,21 @@ class BillingController extends Controller
         ]);
 
         return response()->json($this->billing->checkoutOptions($workspace, $this->user(), $data['plan'], $data['interval']));
+    }
+
+    /**
+     * PayPal sends the customer back here after approving. The subscription
+     * is read from the PayPal API and must belong to this workspace.
+     */
+    public function paypalReturn(Request $request, PayPalBilling $paypal): RedirectResponse
+    {
+        $workspace = $this->workspace();
+        $this->authorize('billing', $workspace);
+
+        $id = $request->query('subscription_id');
+        $subscription = is_string($id) ? $paypal->syncFromApi($id, $workspace) : null;
+
+        return redirect()->route('billing.show', ['checkout' => $subscription?->isActive() ? 'success' : 'pending']);
     }
 
     public function cancel(): RedirectResponse

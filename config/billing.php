@@ -12,6 +12,7 @@
 */
 
 return [
+    // paddle or paypal: which provider new checkouts use.
     'provider' => env('BILLING_PROVIDER', 'paddle'),
 
     'paddle' => [
@@ -26,6 +27,19 @@ return [
             'pro' => ['month' => env('PADDLE_PRICE_PRO_MONTHLY'), 'year' => env('PADDLE_PRICE_PRO_YEARLY')],
             'agency' => ['month' => env('PADDLE_PRICE_AGENCY_MONTHLY'), 'year' => env('PADDLE_PRICE_AGENCY_YEARLY')],
             'seat' => ['month' => env('PADDLE_PRICE_SEAT_MONTHLY'), 'year' => env('PADDLE_PRICE_SEAT_YEARLY')],
+        ],
+    ],
+
+    // PayPal Subscriptions. Create the plans with `php artisan billing:paypal-setup`.
+    'paypal' => [
+        'mode' => env('PAYPAL_MODE', 'sandbox'), // sandbox or live
+        'client_id' => env('PAYPAL_CLIENT_ID'),
+        'client_secret' => env('PAYPAL_CLIENT_SECRET'),
+        'webhook_id' => env('PAYPAL_WEBHOOK_ID'),
+        'plans' => [
+            'solo' => ['month' => env('PAYPAL_PLAN_SOLO_MONTHLY'), 'year' => env('PAYPAL_PLAN_SOLO_YEARLY')],
+            'pro' => ['month' => env('PAYPAL_PLAN_PRO_MONTHLY'), 'year' => env('PAYPAL_PLAN_PRO_YEARLY')],
+            'agency' => ['month' => env('PAYPAL_PLAN_AGENCY_MONTHLY'), 'year' => env('PAYPAL_PLAN_AGENCY_YEARLY')],
         ],
     ],
 

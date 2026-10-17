@@ -27,3 +27,25 @@ Failed events are visible in **Admin, Webhooks** and can be retried.
 ## Plans and limits
 
 Defined in `config/plans.php`. Limits (`null` means unlimited) and features are enforced by `UsageLimitService` and `PlanService`. New workspaces get a 14-day trial of `PLAN_TRIAL_PLAN` (Pro). Downgrades never delete data: existing records stay readable and exportable.
+
+## PayPal Subscriptions (alternative provider)
+
+Set `BILLING_PROVIDER=paypal` to send new checkouts to PayPal instead of Paddle. Existing Paddle subscriptions keep working; each subscription remembers its own provider.
+
+### Setup
+
+1. In [developer.paypal.com](https://developer.paypal.com), open Apps & Credentials, pick Sandbox or Live, and copy the app's Client ID and Secret into `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET`. Set `PAYPAL_MODE` to `sandbox` or `live` to match. Never commit these keys.
+2. Run `php artisan config:clear`, then `php artisan billing:paypal-setup --webhook-url=https://your-domain/webhooks/paypal`. It creates the product, one plan per paid plan and interval (prices from `config/plans.php`), registers the webhook, and prints the `.env` lines (`PAYPAL_PLAN_*`, `PAYPAL_WEBHOOK_ID`). Leave out `--webhook-url` when the site has no stable public address yet.
+3. Paste the lines into `.env` and run `php artisan config:clear` again.
+
+### Flow
+
+- `POST /app/billing/checkout` creates the subscription on PayPal with `custom_id` set to the workspace id and returns the approval URL. The browser goes to PayPal.
+- PayPal returns to `/app/billing/paypal/return`, which reads the subscription from the PayPal API and applies it only if `custom_id` matches the signed-in owner's workspace. The redirect itself grants nothing.
+- `/webhooks/paypal` asks PayPal to verify every delivery (`/v1/notifications/verify-webhook-signature` with `PAYPAL_WEBHOOK_ID`), stores it once in `webhook_events`, and queues it. Subscription events re-read the subscription from the API, so delivery order does not matter. `PAYMENT.SALE.COMPLETED` records the payment in `transactions`.
+- Cancelling calls PayPal's cancel endpoint. PayPal stops billing at once, so the workspace keeps its plan until the end of the paid period (`cancels_at`) and then drops to Free. A cancelled PayPal subscription cannot be resumed; the customer subscribes again after it ends.
+- "Manage on PayPal" opens the customer's PayPal automatic payments page.
+
+Without `PAYPAL_WEBHOOK_ID`, checkouts still activate through the return page, but renewals, failed payments and cancellations made on PayPal are not received.
+
+PayPal is not a merchant of record: you are responsible for sales tax and VAT on these payments.

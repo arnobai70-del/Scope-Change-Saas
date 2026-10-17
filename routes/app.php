@@ -92,6 +92,7 @@ Route::middleware(['auth', 'verified', EnsureWorkspace::class])->prefix('app')->
 
     Route::get('/billing', [BillingController::class, 'show'])->name('billing.show');
     Route::post('/billing/checkout', [BillingController::class, 'checkout'])->middleware('throttle:10,1')->name('billing.checkout');
+    Route::get('/billing/paypal/return', [BillingController::class, 'paypalReturn'])->middleware('throttle:10,1')->name('billing.paypal.return');
     Route::post('/billing/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
     Route::post('/billing/resume', [BillingController::class, 'resume'])->name('billing.resume');
     Route::get('/billing/portal', [BillingController::class, 'portal'])->name('billing.portal');

@@ -17,7 +17,7 @@ Freelancers, agencies and consultants record the agreed scope of a project, turn
 - **Proof Packs**: Dompdf PDF from locked snapshots, stored privately, checksummed, deterministic content hash.
 - **Reports**: approved revenue by month, approval rate, median time to decision, revenue protected per currency.
 - **Teams**: owner, admin and member roles, invitations, seat limits.
-- **Billing**: Paddle Billing as merchant of record (overlay checkout, signed and idempotent webhooks, out-of-order protection, customer portal). Free, Solo, Pro and Agency plans with a 14-day Pro trial. Limits are enforced on the server.
+- **Billing**: Paddle Billing as merchant of record (overlay checkout, signed and idempotent webhooks, out-of-order protection, customer portal), or PayPal Subscriptions (`BILLING_PROVIDER=paypal`, plans created by `php artisan billing:paypal-setup`). Free, Solo, Pro and Agency plans with a 14-day Pro trial. Limits are enforced on the server.
 - **Admin panel** (`/admin`, 2FA required): control center with revenue, system health and growth; users (suspend, verify email, send password reset, grant or remove admin), workspaces (suspend, extend trials), webhooks with retry, support tickets, feature flags, admin audit log.
 - **Marketing site**: server-rendered pages, pricing, segment pages, guides, free change request generator, scope creep calculator, legal templates, sitemap and robots.
 - **Privacy**: data export (JSON or CSV), deletion requests, IP retention pruning, email suppression list for bounces and complaints, first-party analytics with an allow-list of properties.

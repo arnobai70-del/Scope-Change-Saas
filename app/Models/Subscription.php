@@ -57,7 +57,16 @@ class Subscription extends Model
 
     public function isActive(): bool
     {
-        return in_array($this->status, self::ACTIVE_STATUSES, true);
+        return in_array($this->status, self::ACTIVE_STATUSES, true) || $this->inCanceledGracePeriod();
+    }
+
+    /**
+     * Cancelled at the provider but paid until cancels_at (PayPal cancels
+     * immediately; access lasts until the end of the paid period).
+     */
+    public function inCanceledGracePeriod(): bool
+    {
+        return $this->status === 'canceled' && $this->cancels_at !== null && $this->cancels_at->isFuture();
     }
 
     public function onGracePeriod(): bool
