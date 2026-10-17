@@ -59,6 +59,7 @@ class BillingController extends Controller
             ]),
             'checkoutConfigured' => $this->billing->isConfigured(),
             'provider' => $this->billing->provider(),
+            'paypalClientId' => $this->billing->provider() === 'paypal' ? app(PayPalBilling::class)->clientId() : null,
             'isOwner' => $workspace->owner_user_id === $this->user()->id,
             'checkoutStatus' => $request->query('checkout'),
         ]);
@@ -94,6 +95,20 @@ class BillingController extends Controller
         $subscription = is_string($id) ? $paypal->syncFromApi($id, $workspace) : null;
 
         return redirect()->route('billing.show', ['checkout' => $subscription?->isActive() ? 'success' : 'pending']);
+    }
+
+    /**
+     * Called by the on-page card form after PayPal approves the payment.
+     */
+    public function paypalConfirm(Request $request, PayPalBilling $paypal): JsonResponse
+    {
+        $workspace = $this->workspace();
+        $this->authorize('billing', $workspace);
+
+        $data = $request->validate(['subscription_id' => ['required', 'string', 'max:64']]);
+        $subscription = $paypal->syncFromApi($data['subscription_id'], $workspace);
+
+        return response()->json(['active' => (bool) $subscription?->isActive()]);
     }
 
     public function cancel(): RedirectResponse

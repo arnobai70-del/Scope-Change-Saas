@@ -40,8 +40,9 @@ Set `BILLING_PROVIDER=paypal` to send new checkouts to PayPal instead of Paddle.
 
 ### Flow
 
-- `POST /app/billing/checkout` creates the subscription on PayPal with `custom_id` set to the workspace id and returns the approval URL. The browser goes to PayPal.
-- PayPal returns to `/app/billing/paypal/return`, which reads the subscription from the PayPal API and applies it only if `custom_id` matches the signed-in owner's workspace. The redirect itself grants nothing.
+- Choosing a plan opens a "Pay by card" dialog on the billing page. It loads the PayPal JS SDK with the public client id and renders PayPal's card button, which opens PayPal's own card fields on the same page (it falls back to the regular PayPal buttons where cards are not offered). Card numbers go to PayPal only; this app never receives them.
+- The SDK calls `POST /app/billing/checkout`, which creates the subscription on PayPal with `custom_id` set to the workspace id and returns its id. After the card is approved, the page calls `POST /app/billing/paypal/confirm`, which reads the subscription from the PayPal API and applies it only if `custom_id` matches the signed-in owner's workspace.
+- `/app/billing/paypal/return` does the same for the approval page fallback.
 - `/webhooks/paypal` asks PayPal to verify every delivery (`/v1/notifications/verify-webhook-signature` with `PAYPAL_WEBHOOK_ID`), stores it once in `webhook_events`, and queues it. Subscription events re-read the subscription from the API, so delivery order does not matter. `PAYMENT.SALE.COMPLETED` records the payment in `transactions`.
 - Cancelling calls PayPal's cancel endpoint. PayPal stops billing at once, so the workspace keeps its plan until the end of the paid period (`cancels_at`) and then drops to Free. A cancelled PayPal subscription cannot be resumed; the customer subscribes again after it ends.
 - "Manage on PayPal" opens the customer's PayPal automatic payments page.

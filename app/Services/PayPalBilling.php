@@ -40,6 +40,16 @@ class PayPalBilling
         return $this->paypal->hasCredentials();
     }
 
+    /**
+     * Public client id for the PayPal JS SDK (safe to send to the browser).
+     */
+    public function clientId(): ?string
+    {
+        $id = config('billing.paypal.client_id');
+
+        return is_string($id) && $id !== '' ? $id : null;
+    }
+
     public function planId(string $plan, string $interval): ?string
     {
         $id = config("billing.paypal.plans.{$plan}.{$interval}");
@@ -67,9 +77,12 @@ class PayPalBilling
     }
 
     /**
-     * Create a subscription on PayPal and return the approval URL.
+     * Create a pending subscription on PayPal. The card form on the billing
+     * page approves it by id; the approval URL is the fallback page.
+     *
+     * @return array{id: string, approve_url: string}
      */
-    public function checkoutUrl(Workspace $workspace, User $user, string $plan, string $interval): string
+    public function createSubscription(Workspace $workspace, User $user, string $plan, string $interval): array
     {
         $planId = $this->planId($plan, $interval);
 
@@ -94,12 +107,13 @@ class PayPalBilling
         $links = $response->json('links', []);
         $approve = collect($links)->firstWhere('rel', 'approve');
         $url = is_array($approve) ? ($approve['href'] ?? null) : null;
+        $id = $response->json('id');
 
-        if ($response->failed() || ! is_string($url) || ! str_starts_with($url, 'https://')) {
+        if ($response->failed() || ! is_string($id) || ! is_string($url) || ! str_starts_with($url, 'https://')) {
             throw ValidationException::withMessages(['plan' => 'PayPal checkout could not be started. Please try again.']);
         }
 
-        return $url;
+        return ['id' => $id, 'approve_url' => $url];
     }
 
     /**

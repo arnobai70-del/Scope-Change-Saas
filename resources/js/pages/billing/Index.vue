@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { toast } from 'vue-sonner';
 import PageHeader from '@/components/app/PageHeader.vue';
 import Panel from '@/components/app/Panel.vue';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { postJson } from '@/lib/http';
 import type { Money } from '@/types';
 
@@ -47,6 +54,7 @@ const props = defineProps<{
     }[];
     checkoutConfigured: boolean;
     provider: 'paddle' | 'paypal';
+    paypalClientId: string | null;
     isOwner: boolean;
     checkoutStatus: string | null;
 }>();
@@ -85,13 +93,155 @@ function loadPaddle(): Promise<PaddleGlobal> {
 
 let initialized = false;
 
+type PayPalButtons = {
+    isEligible: () => boolean;
+    render: (container: HTMLElement) => Promise<void>;
+    close: () => Promise<void>;
+};
+type PayPalGlobal = {
+    FUNDING: { CARD: string };
+    Buttons: (options: Record<string, unknown>) => PayPalButtons;
+};
+
+const cardPlan = ref<{ key: string; name: string; price: string } | null>(null);
+const cardOpen = ref(false);
+const cardContainer = ref<HTMLElement | null>(null);
+const cardLoading = ref(false);
+let cardButtons: PayPalButtons | null = null;
+
+function loadPayPal(clientId: string): Promise<PayPalGlobal> {
+    const existing = (window as unknown as { paypal?: PayPalGlobal }).paypal;
+
+    if (existing) {
+        return Promise.resolve(existing);
+    }
+
+    return new Promise((resolve, reject) => {
+        const params = new URLSearchParams({
+            'client-id': clientId,
+            vault: 'true',
+            intent: 'subscription',
+            components: 'buttons',
+            'enable-funding': 'card',
+            'disable-funding': 'paylater,venmo',
+        });
+        const script = document.createElement('script');
+        script.src = `https://www.paypal.com/sdk/js?${params.toString()}`;
+        script.async = true;
+        script.onload = () =>
+            resolve((window as unknown as { paypal: PayPalGlobal }).paypal);
+        script.onerror = () =>
+            reject(
+                new Error(
+                    'Could not load the card form. Check your connection and try again.',
+                ),
+            );
+        document.head.appendChild(script);
+    });
+}
+
+/**
+ * Card payment on this page. PayPal draws the card fields in its own secure
+ * frame, so card numbers never touch our server.
+ */
+async function openCardForm(planKey: string): Promise<void> {
+    const selected = props.plans.find((p) => p.key === planKey);
+
+    if (!selected || !props.paypalClientId) {
+        toast.error('Card payments are not configured yet.');
+
+        return;
+    }
+
+    cardPlan.value = {
+        key: selected.key,
+        name: selected.name,
+        price:
+            interval.value === 'year'
+                ? `${selected.yearly.formatted} / year`
+                : `${selected.monthly.formatted} / month`,
+    };
+    cardOpen.value = true;
+    cardLoading.value = true;
+
+    try {
+        const paypal = await loadPayPal(props.paypalClientId);
+        await nextTick();
+
+        if (!cardContainer.value) {
+            return;
+        }
+
+        const chosenInterval = interval.value;
+        const options = {
+            style: { layout: 'vertical', shape: 'rect', label: 'subscribe' },
+            createSubscription: async () => {
+                const created = await postJson<{ subscription_id: string }>(
+                    '/app/billing/checkout',
+                    { plan: planKey, interval: chosenInterval },
+                );
+
+                return created.subscription_id;
+            },
+            onApprove: async (data: { subscriptionID?: string }) => {
+                const result = await postJson<{ active: boolean }>(
+                    '/app/billing/paypal/confirm',
+                    { subscription_id: data.subscriptionID ?? '' },
+                );
+                cardOpen.value = false;
+                router.visit(
+                    `/app/billing?checkout=${result.active ? 'success' : 'pending'}`,
+                );
+            },
+            onError: () => {
+                toast.error(
+                    'The payment did not go through. Check the card details and try again.',
+                );
+            },
+        };
+
+        cardContainer.value.innerHTML = '';
+        cardButtons = paypal.Buttons({
+            ...options,
+            fundingSource: paypal.FUNDING.CARD,
+        });
+
+        // Cards are not offered in every country; fall back to PayPal's buttons.
+        if (!cardButtons.isEligible()) {
+            cardButtons = paypal.Buttons(options);
+        }
+
+        await cardButtons.render(cardContainer.value);
+    } catch (error) {
+        toast.error(
+            error instanceof Error ? error.message : 'Checkout failed.',
+        );
+        cardOpen.value = false;
+    } finally {
+        cardLoading.value = false;
+    }
+}
+
+function onCardOpenChange(open: boolean): void {
+    cardOpen.value = open;
+
+    if (!open && cardButtons) {
+        cardButtons.close().catch(() => undefined);
+        cardButtons = null;
+    }
+}
+
 async function checkout(plan: string): Promise<void> {
+    if (props.provider === 'paypal') {
+        await openCardForm(plan);
+
+        return;
+    }
+
     loading.value = plan;
 
     try {
         const options = await postJson<{
-            provider?: string;
-            redirect?: string;
             environment: string;
             token: string;
             items: unknown[];
@@ -99,13 +249,6 @@ async function checkout(plan: string): Promise<void> {
             customData: unknown;
             settings: unknown;
         }>('/app/billing/checkout', { plan, interval: interval.value });
-
-        if (options.provider === 'paypal' && options.redirect) {
-            // Continue on PayPal's approval page.
-            window.location.href = options.redirect;
-
-            return;
-        }
 
         const paddle = await loadPaddle();
 
@@ -323,8 +466,9 @@ if (props.checkoutStatus === 'success') {
                 v-if="provider === 'paypal'"
                 class="text-xs text-muted-foreground"
             >
-                Payments are processed securely by PayPal. You can pay with your
-                PayPal balance or a card and cancel any time.
+                Pay by debit or credit card right here. Card details go straight
+                to PayPal's secure form and are never stored by us. Cancel any
+                time.
             </p>
             <p v-else class="text-xs text-muted-foreground">
                 Payments are processed by Paddle, our merchant of record, which
@@ -358,5 +502,30 @@ if (props.checkoutStatus === 'success') {
                 </tbody>
             </table>
         </Panel>
+
+        <Dialog :open="cardOpen" @update:open="onCardOpenChange">
+            <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Pay by card</DialogTitle>
+                    <DialogDescription v-if="cardPlan">
+                        {{ cardPlan.name }} plan, {{ cardPlan.price }}. Renews
+                        automatically until you cancel.
+                    </DialogDescription>
+                </DialogHeader>
+                <p
+                    v-if="cardLoading"
+                    class="py-6 text-center text-sm text-muted-foreground"
+                >
+                    Loading secure card form…
+                </p>
+                <div
+                    ref="cardContainer"
+                    class="min-h-12 rounded-lg bg-white p-3"
+                />
+                <p class="text-xs text-muted-foreground">
+                    Secured by PayPal. We never see or store your card number.
+                </p>
+            </DialogContent>
+        </Dialog>
     </div>
 </template>

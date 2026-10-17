@@ -105,6 +105,15 @@ class PayPalBillingTest extends TestCase
         return ['id' => $id, 'event_type' => $type, 'create_time' => '2026-10-10T10:00:00Z', 'resource' => ['id' => $resourceId]];
     }
 
+    public function test_billing_page_shares_the_public_paypal_client_id_only(): void
+    {
+        $workspace = $this->workspace();
+
+        $this->actingAs($this->owner($workspace))->get('/app/billing')
+            ->assertInertia(fn ($page) => $page->where('provider', 'paypal')->where('paypalClientId', 'test-client'))
+            ->assertDontSee('test-secret');
+    }
+
     public function test_checkout_returns_paypal_approval_url_tied_to_the_workspace(): void
     {
         $workspace = $this->workspace();
@@ -112,7 +121,7 @@ class PayPalBillingTest extends TestCase
         $this->actingAs($this->owner($workspace))
             ->postJson('/app/billing/checkout', ['plan' => 'pro', 'interval' => 'month'])
             ->assertOk()
-            ->assertJson(['provider' => 'paypal', 'redirect' => 'https://www.sandbox.paypal.com/webapps/billing/subscriptions?ba_token=BA-1']);
+            ->assertJson(['provider' => 'paypal', 'subscription_id' => 'I-NEWSUB123', 'redirect' => 'https://www.sandbox.paypal.com/webapps/billing/subscriptions?ba_token=BA-1']);
 
         Http::assertSent(fn (Request $request) => $request->url() === self::API.'/v1/billing/subscriptions'
             && $request['plan_id'] === 'P-PROMONTH'
@@ -142,6 +151,28 @@ class PayPalBillingTest extends TestCase
         $this->assertSame('paypal', $subscription->provider);
         $this->assertSame('active', $subscription->status);
         $this->assertSame('pro', app(PlanService::class)->effectivePlan($workspace->refresh()));
+    }
+
+    public function test_card_form_confirmation_activates_only_the_owners_subscription(): void
+    {
+        Carbon::setTestNow('2026-10-12 10:00:00');
+        $workspace = $this->workspace();
+        $this->remoteSubscription($workspace);
+
+        $this->actingAs($this->owner($workspace))
+            ->postJson('/app/billing/paypal/confirm', ['subscription_id' => 'I-SUB123456'])
+            ->assertOk()
+            ->assertJson(['active' => true]);
+
+        $this->assertSame('pro', app(PlanService::class)->effectivePlan($workspace->refresh()));
+
+        $other = $this->workspace();
+        $this->actingAs($this->owner($other))
+            ->postJson('/app/billing/paypal/confirm', ['subscription_id' => 'I-SUB123456'])
+            ->assertOk()
+            ->assertJson(['active' => false]);
+
+        $this->assertNull($other->refresh()->activeSubscription());
     }
 
     public function test_return_ignores_a_subscription_from_another_workspace(): void

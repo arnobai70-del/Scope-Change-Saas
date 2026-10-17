@@ -91,10 +91,10 @@ class BillingService
         }
 
         if ($this->provider() === 'paypal') {
-            $url = $this->paypal->checkoutUrl($workspace, $user, $plan, $interval);
+            $created = $this->paypal->createSubscription($workspace, $user, $plan, $interval);
             $this->analytics->track('checkout_started', $workspace->id, $user->id, ['plan' => $plan, 'interval' => $interval]);
 
-            return ['provider' => 'paypal', 'redirect' => $url];
+            return ['provider' => 'paypal', 'subscription_id' => $created['id'], 'redirect' => $created['approve_url']];
         }
 
         $priceId = $this->priceId($plan, $interval);
