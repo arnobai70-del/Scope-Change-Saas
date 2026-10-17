@@ -7,6 +7,7 @@ import {
     FileCheck2,
     FileStack,
     FolderKanban,
+    Globe,
     LayoutGrid,
     ListChecks,
     Plus,
@@ -56,6 +57,7 @@ const workspaceNavItems = computed(() => {
         { title: 'Team', href: '/app/team', icon: Users },
         { title: 'Billing', href: '/app/billing', icon: CreditCard },
         { title: 'Settings', href: '/app/settings/workspace', icon: Settings },
+        { title: 'View site', href: '/', icon: Globe, external: true },
     ];
 
     if (page.props.auth.user?.is_admin) {
